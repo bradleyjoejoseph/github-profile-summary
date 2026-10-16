@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   Activity,
-  Key,
   Moon,
   Sun,
   Flame,
@@ -10,25 +9,18 @@ import {
 } from 'lucide-react';
 import { GithubIcon } from './icons/GithubIcon';
 import type { Theme } from '../hooks/useTheme';
-import type { RateLimitInfo } from '../types/github';
 
 interface NavbarProps {
   theme: Theme;
   onThemeChange: (theme: Theme) => void;
-  rateLimit: RateLimitInfo;
-  onOpenTokenModal: () => void;
   onOpenCompareModal: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   theme,
   onThemeChange,
-  rateLimit,
-  onOpenTokenModal,
   onOpenCompareModal,
 }) => {
-  const isNearLimit = rateLimit.remaining < 10;
-
   return (
     <header className="sticky top-3 z-40 w-full px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       <div className="apple-glass-dock rounded-2xl h-14 px-4 sm:px-6 flex items-center justify-between gap-3 transition-all">
@@ -57,26 +49,6 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Right Actions */}
         <div className="flex items-center gap-2 sm:gap-2.5">
-          {/* Rate limit status pill */}
-          <button
-            onClick={onOpenTokenModal}
-            title={`GitHub API Quota: ${rateLimit.remaining}/${rateLimit.limit} requests`}
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-medium border transition-all active:scale-95 ${
-              isNearLimit
-                ? 'bg-red-500/10 border-red-500/30 text-red-400'
-                : 'bg-white/5 border-white/10 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-white/20'
-            }`}
-          >
-            <span
-              className={`w-2 h-2 rounded-full ${
-                isNearLimit ? 'bg-red-500 animate-ping' : 'bg-[#27c93f]'
-              }`}
-            />
-            <span className="hidden sm:inline font-mono">API:</span>
-            <span className="font-mono font-semibold">{rateLimit.remaining}</span>
-            <Key className="w-3 h-3 ml-0.5 opacity-70" />
-          </button>
-
           {/* Versus Mode Action Button */}
           <button
             onClick={onOpenCompareModal}

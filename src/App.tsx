@@ -10,15 +10,11 @@ import { CommitPunchcard } from './components/CommitPunchcard';
 import { RepoExplorer } from './components/RepoExplorer';
 import { CompareModal } from './components/CompareModal';
 import { ExportCardModal } from './components/ExportCardModal';
-import { TokenModal } from './components/TokenModal';
 import { Footer } from './components/Footer';
-import {
-  fetchUserSummary,
-  getRateLimit,
-} from './services/githubApi';
+import { fetchUserSummary } from './services/githubApi';
 import { BRADLEY_DEMO_DATA } from './services/mockData';
-import type { UserSummaryData, RateLimitInfo } from './types/github';
-import { AlertCircle, Sparkles, Key } from 'lucide-react';
+import type { UserSummaryData } from './types/github';
+import { AlertCircle, Sparkles } from 'lucide-react';
 
 export function App() {
   const { theme, setTheme } = useTheme();
@@ -36,12 +32,8 @@ export function App() {
   const [isDemoActive, setIsDemoActive] = useState(false);
 
   // Modals state
-  const [isTokenModalOpen, setIsTokenModalOpen] = useState(false);
   const [isCompareModalOpen, setIsCompareModalOpen] = useState(false);
   const [isExportCardModalOpen, setIsExportCardModalOpen] = useState(false);
-
-  // Rate limit
-  const [rateLimit, setRateLimit] = useState<RateLimitInfo>(getRateLimit());
 
   const loadUserData = useCallback(
     async (targetUser: string, bypassCache = false) => {
@@ -58,7 +50,6 @@ export function App() {
         const data = await fetchUserSummary(targetUser, bypassCache);
         setSummary(data);
         setUsername(targetUser);
-        setRateLimit(getRateLimit());
       } catch (err: any) {
         console.error('Fetch error:', err);
         const errMsg = err.message || 'Failed to fetch GitHub profile summary.';
@@ -100,13 +91,11 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--bg-primary)] text-[var(--text-primary)] transition-colors">
+    <div className="min-h-screen flex flex-col bg-[var(--bg-canvas)] text-[var(--text-primary)] transition-colors">
       {/* Top Navigation */}
       <Navbar
         theme={theme}
         onThemeChange={setTheme}
-        rateLimit={rateLimit}
-        onOpenTokenModal={() => setIsTokenModalOpen(true)}
         onOpenCompareModal={() => setIsCompareModalOpen(true)}
       />
 
@@ -121,20 +110,13 @@ export function App() {
         {/* Demo Mode Notice */}
         {isDemoActive && (
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
-            <div className="flex items-center justify-between p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs">
+            <div className="flex items-center justify-between p-3 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-[#2997ff] text-xs">
               <div className="flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-amber-400" />
                 <span>
-                  <strong>Interactive Showcase Active:</strong> Displaying verified
-                  developer data for Bradley Joseph.
+                  <strong>Interactive Showcase:</strong> Displaying verified developer profile data for Bradley Joseph.
                 </span>
               </div>
-              <button
-                onClick={() => setIsTokenModalOpen(true)}
-                className="underline hover:text-blue-300 font-medium cursor-pointer"
-              >
-                Add Token for Live API
-              </button>
             </div>
           </div>
         )}
@@ -153,16 +135,9 @@ export function App() {
               <div className="flex items-center gap-2 shrink-0">
                 <button
                   onClick={handleUseDemo}
-                  className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-500/20 hover:bg-red-500/30 text-white transition-colors cursor-pointer"
+                  className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-red-500/20 hover:bg-red-500/30 text-white transition-colors cursor-pointer"
                 >
                   Load Demo Showcase
-                </button>
-                <button
-                  onClick={() => setIsTokenModalOpen(true)}
-                  className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[var(--bg-secondary)] border border-[var(--border-color)] text-[var(--text-primary)] hover:border-red-400 flex items-center gap-1 transition-colors cursor-pointer"
-                >
-                  <Key className="w-3.5 h-3.5" />
-                  <span>Add Token</span>
                 </button>
               </div>
             </div>
@@ -171,12 +146,12 @@ export function App() {
 
         {/* Loading Skeleton */}
         {isLoading && !summary && (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 space-y-6">
-            <div className="h-64 rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-color)] animate-pulse" />
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="h-28 rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-color)] animate-pulse" />
-              <div className="h-28 rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-color)] animate-pulse" />
-              <div className="h-28 rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-color)] animate-pulse" />
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 space-y-5">
+            <div className="h-64 rounded-3xl bg-[#161b22]/60 border border-white/5 animate-pulse" />
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+              <div className="h-28 rounded-2xl bg-[#161b22]/60 border border-white/5 animate-pulse" />
+              <div className="h-28 rounded-2xl bg-[#161b22]/60 border border-white/5 animate-pulse" />
+              <div className="h-28 rounded-2xl bg-[#161b22]/60 border border-white/5 animate-pulse" />
             </div>
           </div>
         )}
@@ -198,8 +173,8 @@ export function App() {
             <MetricCards summary={summary} />
 
             {/* Analytics Grid */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                 <LanguageBreakdown languageStats={summary.languageStats} />
                 <RepoAnalytics
                   topStarredRepos={summary.topStarredRepos}
@@ -222,17 +197,6 @@ export function App() {
 
       {/* Footer */}
       <Footer />
-
-      {/* Modals */}
-      <TokenModal
-        isOpen={isTokenModalOpen}
-        onClose={() => setIsTokenModalOpen(false)}
-        rateLimit={rateLimit}
-        onTokenUpdated={() => {
-          setRateLimit(getRateLimit());
-          handleRefresh();
-        }}
-      />
 
       {summary && (
         <>

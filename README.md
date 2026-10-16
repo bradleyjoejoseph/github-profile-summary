@@ -41,7 +41,7 @@ I built **GitPulse** to be the next-generation reimagining: a fast, client-side,
 - ⚔️ **Developer Versus Mode**: Side-by-side comparison of any two developers with head-to-head stat bars and confetti celebrations.
 - 🎴 **Exportable Profile Summary Card**: Generate Retina high-DPI cards ready to download as PNG or embed directly in GitHub profile READMEs.
 - 🌓 **Multi-Theme Engine**: Seamless switching between **GitHub Dark**, **AMOLED Midnight**, **GitHub Dimmed**, and **Crisp Light** modes.
-- ⚡ **Rate-Limit Guard & Caching**: Smart 15-minute `localStorage` cache, live rate-limit quota counter, and optional Personal Access Token support for 5,000 req/hr.
+- ⚡ **Smart Client-Side Caching**: 15-minute `localStorage` cache and instant response to ensure silky-smooth navigation with zero setup.
 
 ---
 
@@ -80,17 +80,6 @@ npm run dev
 ```
 
 Visit `http://localhost:5173` in your browser.
-
----
-
-## 🔑 GitHub API Token (Optional)
-
-By default, GitPulse connects to the official unauthenticated GitHub REST API (limited to 60 requests/hour per IP). 
-
-If you are analyzing dozens of profiles, you can click the **API Key** button in the navigation bar and enter a GitHub Personal Access Token. 
-
-> [!NOTE]
-> **100% Client-Side Privacy**: Tokens are stored strictly in your browser's `localStorage` and sent directly to `api.github.com`. No backend server exists, and no permissions or scopes are required for reading public repositories.
 
 ---
 
