@@ -1,0 +1,53 @@
+{
+  "name": "github-profile-summary",
+  "version": "2.0.0",
+  "description": "GitPulse — Modern GitHub Profile Summary & Analytics Dashboard. Visualize developer activity, commit cadences, language breakdowns, and repository impact.",
+  "author": "Bradley Joseph <bradleyjoe007@gmail.com> (https://github.com/bradleyjoejoseph)",
+  "homepage": "https://bradleyjoejoseph.github.io/github-profile-summary/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bradleyjoejoseph/github-profile-summary.git"
+  },
+  "keywords": [
+    "github",
+    "profile-summary",
+    "developer-tools",
+    "dashboard",
+    "analytics",
+    "charts",
+    "recharts",
+    "react",
+    "typescript",
+    "tailwindcss"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "canvas-confetti": "^1.9.4",
+    "clsx": "^2.1.1",
+    "html-to-image": "^1.11.13",
+    "lucide-react": "^1.58.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "recharts": "^3.10.1",
+    "tailwind-merge": "^3.7.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/canvas-confetti": "^1.9.0",
+    "@types/node": "^24.13.3",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "@vitejs/plugin-react": "^6.1.1",
+    "autoprefixer": "^10.4.27",
+    "postcss": "^8.5.8",
+    "tailwindcss": "^4.3.3",
+    "typescript": "~6.0.2",
+    "vite": "^8.3.0"
+  }
+}
