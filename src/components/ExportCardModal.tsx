@@ -84,12 +84,9 @@ export const ExportCardModal: React.FC<ExportCardModalProps> = ({
             <div className="absolute top-0 right-0 w-40 h-40 bg-[#2997ff]/20 rounded-full blur-2xl pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-40 h-40 bg-purple-500/15 rounded-full blur-2xl pointer-events-none" />
 
-            {/* Traffic Light Dots on Export Card */}
-            <div className="flex items-center gap-1.5 mb-4 opacity-80">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#ff5f56]" />
-              <span className="w-2.5 h-2.5 rounded-full bg-[#ffbd2e]" />
-              <span className="w-2.5 h-2.5 rounded-full bg-[#27c93f]" />
-              <span className="ml-auto text-[10px] font-mono text-[#8b949e]">GitPulse</span>
+            {/* Card Header Branding */}
+            <div className="flex items-center justify-end mb-3 opacity-60">
+              <span className="text-[10px] font-mono text-[#8b949e]">GitPulse Analytics</span>
             </div>
 
             {/* Card Header */}

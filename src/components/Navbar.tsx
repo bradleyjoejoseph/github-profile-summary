@@ -26,12 +26,6 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="apple-glass-dock rounded-2xl h-14 px-4 sm:px-6 flex items-center justify-between gap-3 transition-all">
         {/* Brand with macOS window indicator accent */}
         <div className="flex items-center gap-3">
-          <div className="hidden sm:flex items-center gap-1.5 mr-1">
-            <span className="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e]/50 inline-block shadow-xs" />
-            <span className="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123]/50 inline-block shadow-xs" />
-            <span className="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29]/50 inline-block shadow-xs" />
-          </div>
-
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#2997ff] to-[#0077ed] flex items-center justify-center text-white shadow-md shadow-blue-500/25">
               <Activity className="w-4 h-4 animate-pulse" />
@@ -39,9 +33,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             <div className="flex items-center gap-2">
               <span className="font-semibold text-base tracking-tight text-[var(--text-primary)]">
                 GitPulse
-              </span>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/5 text-[#8b949e] border border-white/10">
-                macOS + Primer
               </span>
             </div>
           </div>
