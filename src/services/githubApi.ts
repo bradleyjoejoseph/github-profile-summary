@@ -1,0 +1,246 @@
+import type {
+  GitHubUser,
+  GitHubRepo,
+  GitHubEvent,
+  UserSummaryData,
+  LanguageStat,
+  DayActivity,
+  HourActivity,
+  RateLimitInfo,
+} from '../types/github';
+import { getLanguageColor } from './languageColors';
+
+const TOKEN_STORAGE_KEY = 'gitpulse_gh_token';
+const CACHE_PREFIX = 'gitpulse_cache_';
+const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes
+
+export function getStoredToken(): string | null {
+  return localStorage.getItem(TOKEN_STORAGE_KEY);
+}
+
+export function setStoredToken(token: string | null): void {
+  if (token && token.trim()) {
+    localStorage.setItem(TOKEN_STORAGE_KEY, token.trim());
+  } else {
+    localStorage.removeItem(TOKEN_STORAGE_KEY);
+  }
+}
+
+let latestRateLimit: RateLimitInfo = {
+  limit: 60,
+  remaining: 60,
+  reset: Math.floor(Date.now() / 1000) + 3600,
+};
+
+export function getRateLimit(): RateLimitInfo {
+  return latestRateLimit;
+}
+
+function updateRateLimitFromHeaders(headers: Headers): void {
+  const limit = headers.get('x-ratelimit-limit');
+  const remaining = headers.get('x-ratelimit-remaining');
+  const reset = headers.get('x-ratelimit-reset');
+
+  if (limit && remaining && reset) {
+    latestRateLimit = {
+      limit: parseInt(limit, 10),
+      remaining: parseInt(remaining, 10),
+      reset: parseInt(reset, 10),
+    };
+  }
+}
+
+async function fetchWithAuth(url: string): Promise<Response> {
+  const token = getStoredToken();
+  const headers: Record<string, string> = {
+    Accept: 'application/vnd.github.v3+json',
+  };
+
+  if (token) {
+    headers.Authorization = `token ${token}`;
+  }
+
+  const response = await fetch(url, { headers });
+  updateRateLimitFromHeaders(response.headers);
+  return response;
+}
+
+export async function fetchUserSummary(
+  username: string,
+  bypassCache = false
+): Promise<UserSummaryData> {
+  const cleanUsername = username.trim().toLowerCase();
+  const cacheKey = `${CACHE_PREFIX}${cleanUsername}`;
+
+  if (!bypassCache) {
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      try {
+        const parsed: UserSummaryData = JSON.parse(cached);
+        if (parsed.cachedAt && Date.now() - parsed.cachedAt < CACHE_TTL_MS) {
+          return parsed;
+        }
+      } catch (e) {
+        localStorage.removeItem(cacheKey);
+      }
+    }
+  }
+
+  // 1. Fetch User Profile
+  const userRes = await fetchWithAuth(`https://api.github.com/users/${cleanUsername}`);
+  if (userRes.status === 404) {
+    throw new Error(`GitHub user "${cleanUsername}" was not found.`);
+  }
+  if (userRes.status === 403 || userRes.status === 429) {
+    const isRateLimited = latestRateLimit.remaining === 0;
+    const resetDate = new Date(latestRateLimit.reset * 1000).toLocaleTimeString();
+    throw new Error(
+      isRateLimited
+        ? `GitHub API rate limit exceeded. Resets at ${resetDate}. Add a Personal Access Token in settings for 5,000 req/hr!`
+        : `GitHub API request forbidden (Status 403). Please verify your token or try again shortly.`
+    );
+  }
+  if (!userRes.ok) {
+    throw new Error(`Failed to fetch user (${userRes.status}: ${userRes.statusText})`);
+  }
+
+  const user: GitHubUser = await userRes.json();
+
+  // 2. Fetch Repositories (up to 100 repos sorted by updated)
+  let repos: GitHubRepo[] = [];
+  try {
+    const reposRes = await fetchWithAuth(
+      `https://api.github.com/users/${cleanUsername}/repos?per_page=100&sort=pushed`
+    );
+    if (reposRes.ok) {
+      repos = await reposRes.json();
+    }
+  } catch (err) {
+    console.warn('Could not fetch repos:', err);
+  }
+
+  // 3. Fetch Public Events (for commit habits & punchcard)
+  let events: GitHubEvent[] = [];
+  try {
+    const eventsRes = await fetchWithAuth(
+      `https://api.github.com/users/${cleanUsername}/events/public?per_page=100`
+    );
+    if (eventsRes.ok) {
+      events = await eventsRes.json();
+    }
+  } catch (err) {
+    console.warn('Could not fetch events:', err);
+  }
+
+  // Calculate statistics
+  let totalStars = 0;
+  let totalForks = 0;
+  let sourceReposCount = 0;
+  let forkedReposCount = 0;
+  const langCountMap: Record<string, { count: number; stars: number }> = {};
+
+  repos.forEach((repo) => {
+    totalStars += repo.stargazers_count || 0;
+    totalForks += repo.forks_count || 0;
+
+    if (repo.fork) {
+      forkedReposCount++;
+    } else {
+      sourceReposCount++;
+    }
+
+    if (repo.language) {
+      if (!langCountMap[repo.language]) {
+        langCountMap[repo.language] = { count: 0, stars: 0 };
+      }
+      langCountMap[repo.language].count += 1;
+      langCountMap[repo.language].stars += repo.stargazers_count || 0;
+    }
+  });
+
+  const totalReposWithLang = Object.values(langCountMap).reduce(
+    (acc, curr) => acc + curr.count,
+    0
+  );
+
+  const languageStats: LanguageStat[] = Object.entries(langCountMap)
+    .map(([name, data]) => ({
+      name,
+      count: data.count,
+      stars: data.stars,
+      color: getLanguageColor(name),
+      percentage: totalReposWithLang > 0 ? Math.round((data.count / totalReposWithLang) * 100) : 0,
+    }))
+    .sort((a, b) => b.count - a.count);
+
+  const primaryLanguage = languageStats.length > 0 ? languageStats[0].name : 'N/A';
+
+  const topStarredRepos = [...repos]
+    .sort((a, b) => b.stargazers_count - a.stargazers_count)
+    .slice(0, 10);
+
+  const topForkedRepos = [...repos]
+    .sort((a, b) => b.forks_count - a.forks_count)
+    .slice(0, 10);
+
+  // Day of week activity
+  const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const dayCounts = [0, 0, 0, 0, 0, 0, 0];
+  const hourCounts = new Array(24).fill(0);
+
+  events.forEach((event) => {
+    if (event.created_at) {
+      const date = new Date(event.created_at);
+      const dayIndex = date.getDay();
+      const hour = date.getHours();
+      dayCounts[dayIndex] += 1;
+      hourCounts[hour] += 1;
+    }
+  });
+
+  // If user has zero public events recently, fallback gracefully with repo creation dates
+  const hasEvents = events.length > 0;
+  if (!hasEvents && repos.length > 0) {
+    repos.forEach((repo) => {
+      const date = new Date(repo.updated_at || repo.created_at);
+      dayCounts[date.getDay()] += 1;
+      hourCounts[date.getHours()] += 1;
+    });
+  }
+
+  const dayActivity: DayActivity[] = daysOfWeek.map((day, idx) => ({
+    day,
+    dayIndex: idx,
+    events: dayCounts[idx],
+  }));
+
+  const hourActivity: HourActivity[] = hourCounts.map((count, hour) => ({
+    hour,
+    label: `${hour.toString().padStart(2, '0')}:00`,
+    events: count,
+  }));
+
+  const result: UserSummaryData = {
+    user,
+    repos,
+    totalStars,
+    totalForks,
+    languageStats,
+    topStarredRepos,
+    topForkedRepos,
+    dayActivity,
+    hourActivity,
+    primaryLanguage,
+    sourceReposCount,
+    forkedReposCount,
+    cachedAt: Date.now(),
+  };
+
+  try {
+    localStorage.setItem(cacheKey, JSON.stringify(result));
+  } catch (err) {
+    console.warn('LocalStorage quota exceeded for caching:', err);
+  }
+
+  return result;
+}
