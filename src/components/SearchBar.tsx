@@ -43,7 +43,6 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     const trimmed = inputValue.trim();
     if (!trimmed) return;
 
-    // Save to recents
     const updated = [
       trimmed,
       ...recentSearches.filter((s) => s.toLowerCase() !== trimmed.toLowerCase()),
@@ -66,52 +65,54 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-4 pt-6 pb-2">
-      {/* Search Input Box */}
+    <div className="w-full max-w-4xl mx-auto px-4 pt-7 pb-2">
+      {/* macOS Spotlight Inspired Search Bar */}
       <form onSubmit={handleSubmit} className="relative group">
-        <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-2xl blur-xs opacity-30 group-hover:opacity-60 transition duration-300" />
-        <div className="relative flex items-center bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl shadow-lg overflow-hidden">
-          <div className="pl-4 text-[var(--text-secondary)]">
-            <Search className="w-5 h-5" />
+        <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-[#2997ff]/20 via-[#58a6ff]/20 to-[#a855f7]/20 blur-md opacity-40 group-hover:opacity-75 transition duration-300" />
+        <div className="relative flex items-center bg-[#161b22]/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl overflow-hidden px-2">
+          <div className="pl-3 text-[#8b949e]">
+            <Search className="w-4 h-4" />
           </div>
           <input
             type="text"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            placeholder="Search GitHub username (e.g. bradleyjoejoseph, torvalds, antfu)..."
-            className="w-full py-4 pl-3 pr-24 bg-transparent text-[var(--text-primary)] placeholder-[var(--text-secondary)] text-sm sm:text-base focus:outline-hidden"
+            placeholder="Search any GitHub developer (e.g. bradleyjoejoseph, torvalds, antfu)..."
+            className="w-full py-3.5 pl-3 pr-4 bg-transparent text-[var(--text-primary)] placeholder-[#6e7681] text-sm focus:outline-hidden"
             disabled={isLoading}
             autoCapitalize="none"
             autoCorrect="off"
             spellCheck="false"
           />
 
+          {/* Clear button */}
           {inputValue && (
             <button
               type="button"
               onClick={handleClear}
-              className="p-1.5 mr-1 text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-lg hover:bg-[var(--bg-card)] transition-colors"
+              className="p-1 mr-1 text-[#8b949e] hover:text-[#f0f6fc] rounded-lg hover:bg-white/10 transition-colors"
               title="Clear input"
             >
               <X className="w-4 h-4" />
             </button>
           )}
 
-          <div className="pr-2">
+          {/* Action Button */}
+          <div className="pr-1 flex items-center gap-1.5">
             <button
               type="submit"
               disabled={isLoading || !inputValue.trim()}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-xs sm:text-sm bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 disabled:opacity-50 text-white shadow-md transition-all active:scale-95"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl font-semibold text-xs bg-[#2997ff] hover:bg-[#3ea3ff] disabled:opacity-50 text-white shadow-md transition-all active:scale-95"
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   <span>Analyzing...</span>
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-4 h-4" />
-                  <span>Analyze</span>
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Inspect</span>
                 </>
               )}
             </button>
@@ -119,10 +120,10 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         </div>
       </form>
 
-      {/* Quick Presets & Recents */}
-      <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
-        <span className="text-[var(--text-secondary)] font-medium flex items-center gap-1">
-          <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Demo Presets:
+      {/* Preset Capsules */}
+      <div className="mt-3.5 flex flex-wrap items-center gap-1.5 text-xs">
+        <span className="text-[#8b949e] font-medium flex items-center gap-1 mr-1">
+          <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Presets:
         </span>
         {PRESETS.map((preset) => {
           const isCurrent =
@@ -131,29 +132,29 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             <button
               key={preset.username}
               onClick={() => handlePresetClick(preset.username)}
-              className={`px-2.5 py-1 rounded-md transition-all flex items-center gap-1 font-medium ${
+              className={`px-3 py-1 rounded-full transition-all flex items-center gap-1 font-medium text-[11px] ${
                 preset.featured
-                  ? 'bg-blue-500/15 text-blue-400 border border-blue-500/30 hover:bg-blue-500/25 shadow-xs'
+                  ? 'bg-blue-500/15 text-[#2997ff] border border-blue-500/30 hover:bg-blue-500/25 shadow-xs'
                   : isCurrent
-                  ? 'bg-[var(--accent)] text-white'
-                  : 'bg-[var(--bg-secondary)] border border-[var(--border-color)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--accent)]'
+                  ? 'bg-[#2997ff] text-white'
+                  : 'bg-white/5 border border-white/5 text-[#8b949e] hover:text-[#f0f6fc] hover:border-white/15'
               }`}
             >
-              {preset.featured && <span className="text-amber-400">★</span>}
+              {preset.featured && <span className="text-amber-400 font-bold">★</span>}
               <span>{preset.label}</span>
             </button>
           );
         })}
 
         {recentSearches.length > 0 && (
-          <div className="hidden lg:flex items-center gap-1.5 ml-auto text-[var(--text-secondary)]">
-            <History className="w-3.5 h-3.5" />
+          <div className="hidden lg:flex items-center gap-1.5 ml-auto text-[11px] text-[#6e7681]">
+            <History className="w-3 h-3" />
             <span>Recent:</span>
             {recentSearches.slice(0, 3).map((item) => (
               <button
                 key={item}
                 onClick={() => handlePresetClick(item)}
-                className="underline hover:text-[var(--text-primary)]"
+                className="underline hover:text-[#f0f6fc]"
               >
                 {item}
               </button>

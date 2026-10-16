@@ -33,7 +33,6 @@ export const CompareModal: React.FC<CompareModalProps> = ({
     try {
       const data = await fetchUserSummary(targetUsername.trim());
       setComparedUser(data);
-      // Trigger confetti celebration!
       confetti({
         particleCount: 80,
         spread: 70,
@@ -50,49 +49,49 @@ export const CompareModal: React.FC<CompareModalProps> = ({
   const userB = comparedUser;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
-      <div className="relative w-full max-w-3xl rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-color)] shadow-2xl p-6 sm:p-8 max-h-[90dvh] overflow-y-auto">
-        {/* Close Button */}
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
+      <div className="relative w-full max-w-2xl rounded-3xl bg-[#161b22]/95 border border-white/10 shadow-2xl p-6 sm:p-7 max-h-[90dvh] overflow-y-auto">
+        {/* macOS Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 p-2 rounded-xl text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card)] transition-colors"
+          className="absolute top-5 right-5 p-1.5 rounded-full text-[#8b949e] hover:text-white bg-white/5 hover:bg-white/10 transition-colors"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4" />
         </button>
 
         {/* Modal Header */}
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-            <GitCompare className="w-6 h-6" />
+          <div className="w-10 h-10 rounded-2xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center justify-center">
+            <GitCompare className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-[var(--text-primary)]">
+            <h2 className="text-lg font-bold text-[var(--text-primary)]">
               Developer Versus Mode
             </h2>
-            <p className="text-xs text-[var(--text-secondary)]">
+            <p className="text-xs text-[#8b949e]">
               Compare developer statistics head-to-head
             </p>
           </div>
         </div>
 
-        {/* Search for competitor */}
-        <form onSubmit={handleCompare} className="mt-6 flex gap-2">
+        {/* Search Input */}
+        <form onSubmit={handleCompare} className="mt-5 flex gap-2">
           <input
             type="text"
             value={targetUsername}
             onChange={(e) => setTargetUsername(e.target.value)}
-            placeholder="Enter second GitHub username (e.g. torvalds, gaearon)..."
-            className="flex-1 py-2.5 px-4 rounded-xl bg-[var(--bg-card)] border border-[var(--border-color)] text-sm text-[var(--text-primary)] focus:outline-hidden focus:border-[var(--accent)]"
+            placeholder="Enter second GitHub handle (e.g. torvalds, gaearon)..."
+            className="flex-1 py-2 px-3.5 rounded-xl bg-black/40 border border-white/10 text-xs sm:text-sm text-[var(--text-primary)] placeholder-[#6e7681] focus:outline-hidden focus:border-[#2997ff]"
           />
           <button
             type="submit"
             disabled={isLoading || !targetUsername.trim()}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-xs sm:text-sm bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 disabled:opacity-50 text-white shadow-md transition-all active:scale-95"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl font-semibold text-xs bg-[#2997ff] hover:bg-[#3ea3ff] disabled:opacity-50 text-white shadow-md transition-all active:scale-95"
           >
             {isLoading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
             ) : (
-              <Trophy className="w-4 h-4" />
+              <Trophy className="w-3.5 h-3.5" />
             )}
             <span>Compare</span>
           </button>
@@ -106,38 +105,36 @@ export const CompareModal: React.FC<CompareModalProps> = ({
 
         {/* Comparison Arena */}
         {userB ? (
-          <div className="mt-8 space-y-6">
-            {/* Header cards */}
-            <div className="grid grid-cols-2 gap-4">
-              {/* User A */}
-              <div className="p-4 rounded-xl bg-[var(--bg-card)]/50 border border-[var(--border-color)] flex items-center gap-3">
+          <div className="mt-6 space-y-4">
+            {/* Header Cards */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="p-3.5 rounded-2xl bg-black/30 border border-white/5 flex items-center gap-3">
                 <img
                   src={userA.user.avatar_url}
                   alt={userA.user.login}
-                  className="w-12 h-12 rounded-full border border-blue-500/40"
+                  className="w-10 h-10 rounded-xl border border-blue-500/40"
                 />
                 <div className="truncate">
-                  <h3 className="font-bold text-sm text-[var(--text-primary)] truncate">
+                  <h3 className="font-bold text-xs text-[var(--text-primary)] truncate">
                     {userA.user.name || userA.user.login}
                   </h3>
-                  <p className="text-xs font-mono text-[var(--accent)]">
+                  <p className="text-[11px] font-mono text-[#2997ff]">
                     @{userA.user.login}
                   </p>
                 </div>
               </div>
 
-              {/* User B */}
-              <div className="p-4 rounded-xl bg-[var(--bg-card)]/50 border border-[var(--border-color)] flex items-center gap-3">
+              <div className="p-3.5 rounded-2xl bg-black/30 border border-white/5 flex items-center gap-3">
                 <img
                   src={userB.user.avatar_url}
                   alt={userB.user.login}
-                  className="w-12 h-12 rounded-full border border-purple-500/40"
+                  className="w-10 h-10 rounded-xl border border-purple-500/40"
                 />
                 <div className="truncate">
-                  <h3 className="font-bold text-sm text-[var(--text-primary)] truncate">
+                  <h3 className="font-bold text-xs text-[var(--text-primary)] truncate">
                     {userB.user.name || userB.user.login}
                   </h3>
-                  <p className="text-xs font-mono text-purple-400">
+                  <p className="text-[11px] font-mono text-purple-400">
                     @{userB.user.login}
                   </p>
                 </div>
@@ -145,24 +142,23 @@ export const CompareModal: React.FC<CompareModalProps> = ({
             </div>
 
             {/* Metrics Breakdown */}
-            <div className="space-y-4">
+            <div className="space-y-3">
               {/* Metric: Stars */}
-              <div className="p-4 rounded-xl bg-[var(--bg-card)] border border-[var(--border-color)]">
+              <div className="p-3.5 rounded-2xl bg-black/30 border border-white/5">
                 <div className="flex items-center justify-between text-xs font-semibold mb-2">
-                  <span className="text-blue-400 font-mono">
+                  <span className="text-[#2997ff] font-mono">
                     ★ {userA.totalStars.toLocaleString()}
                   </span>
-                  <span className="text-[var(--text-secondary)] uppercase tracking-wider flex items-center gap-1">
-                    <Star className="w-3.5 h-3.5 text-amber-400" /> Total Stars
+                  <span className="text-[#8b949e] uppercase tracking-wider text-[11px] flex items-center gap-1">
+                    <Star className="w-3 h-3 text-amber-400" /> Total Stars
                   </span>
                   <span className="text-purple-400 font-mono">
                     ★ {userB.totalStars.toLocaleString()}
                   </span>
                 </div>
-                {/* Bar */}
-                <div className="h-2.5 w-full bg-[var(--bg-secondary)] rounded-full overflow-hidden flex">
+                <div className="h-2 w-full bg-black/50 rounded-full overflow-hidden flex">
                   <div
-                    className="h-full bg-blue-500 transition-all duration-500"
+                    className="h-full bg-[#2997ff] transition-all duration-500"
                     style={{
                       width: `${
                         userA.totalStars + userB.totalStars === 0
@@ -185,21 +181,21 @@ export const CompareModal: React.FC<CompareModalProps> = ({
               </div>
 
               {/* Metric: Followers */}
-              <div className="p-4 rounded-xl bg-[var(--bg-card)] border border-[var(--border-color)]">
+              <div className="p-3.5 rounded-2xl bg-black/30 border border-white/5">
                 <div className="flex items-center justify-between text-xs font-semibold mb-2">
-                  <span className="text-blue-400 font-mono">
+                  <span className="text-[#2997ff] font-mono">
                     {userA.user.followers.toLocaleString()}
                   </span>
-                  <span className="text-[var(--text-secondary)] uppercase tracking-wider flex items-center gap-1">
-                    <Users className="w-3.5 h-3.5 text-pink-400" /> Followers
+                  <span className="text-[#8b949e] uppercase tracking-wider text-[11px] flex items-center gap-1">
+                    <Users className="w-3 h-3 text-pink-400" /> Followers
                   </span>
                   <span className="text-purple-400 font-mono">
                     {userB.user.followers.toLocaleString()}
                   </span>
                 </div>
-                <div className="h-2.5 w-full bg-[var(--bg-secondary)] rounded-full overflow-hidden flex">
+                <div className="h-2 w-full bg-black/50 rounded-full overflow-hidden flex">
                   <div
-                    className="h-full bg-blue-500 transition-all duration-500"
+                    className="h-full bg-[#2997ff] transition-all duration-500"
                     style={{
                       width: `${
                         userA.user.followers + userB.user.followers === 0
@@ -226,21 +222,21 @@ export const CompareModal: React.FC<CompareModalProps> = ({
               </div>
 
               {/* Metric: Public Repos */}
-              <div className="p-4 rounded-xl bg-[var(--bg-card)] border border-[var(--border-color)]">
+              <div className="p-3.5 rounded-2xl bg-black/30 border border-white/5">
                 <div className="flex items-center justify-between text-xs font-semibold mb-2">
-                  <span className="text-blue-400 font-mono">
+                  <span className="text-[#2997ff] font-mono">
                     {userA.user.public_repos.toLocaleString()}
                   </span>
-                  <span className="text-[var(--text-secondary)] uppercase tracking-wider flex items-center gap-1">
-                    <BookOpen className="w-3.5 h-3.5 text-emerald-400" /> Public Repos
+                  <span className="text-[#8b949e] uppercase tracking-wider text-[11px] flex items-center gap-1">
+                    <BookOpen className="w-3 h-3 text-emerald-400" /> Public Repos
                   </span>
                   <span className="text-purple-400 font-mono">
                     {userB.user.public_repos.toLocaleString()}
                   </span>
                 </div>
-                <div className="h-2.5 w-full bg-[var(--bg-secondary)] rounded-full overflow-hidden flex">
+                <div className="h-2 w-full bg-black/50 rounded-full overflow-hidden flex">
                   <div
-                    className="h-full bg-blue-500 transition-all duration-500"
+                    className="h-full bg-[#2997ff] transition-all duration-500"
                     style={{
                       width: `${
                         userA.user.public_repos + userB.user.public_repos === 0
@@ -267,14 +263,14 @@ export const CompareModal: React.FC<CompareModalProps> = ({
               </div>
 
               {/* Primary Language */}
-              <div className="grid grid-cols-2 gap-4 text-center">
-                <div className="p-3 rounded-xl bg-[var(--bg-card)] border border-[var(--border-color)]">
-                  <span className="text-[11px] text-[var(--text-secondary)]">
+              <div className="grid grid-cols-2 gap-3 text-center">
+                <div className="p-3 rounded-2xl bg-black/30 border border-white/5">
+                  <span className="text-[10px] text-[#8b949e] uppercase font-semibold">
                     Primary Language
                   </span>
-                  <div className="flex items-center justify-center gap-1.5 mt-1 font-bold text-sm text-[var(--text-primary)]">
+                  <div className="flex items-center justify-center gap-1.5 mt-1 font-bold text-xs text-[var(--text-primary)]">
                     <span
-                      className="w-2.5 h-2.5 rounded-full"
+                      className="w-2 h-2 rounded-full"
                       style={{
                         backgroundColor: getLanguageColor(userA.primaryLanguage),
                       }}
@@ -283,13 +279,13 @@ export const CompareModal: React.FC<CompareModalProps> = ({
                   </div>
                 </div>
 
-                <div className="p-3 rounded-xl bg-[var(--bg-card)] border border-[var(--border-color)]">
-                  <span className="text-[11px] text-[var(--text-secondary)]">
+                <div className="p-3 rounded-2xl bg-black/30 border border-white/5">
+                  <span className="text-[10px] text-[#8b949e] uppercase font-semibold">
                     Primary Language
                   </span>
-                  <div className="flex items-center justify-center gap-1.5 mt-1 font-bold text-sm text-[var(--text-primary)]">
+                  <div className="flex items-center justify-center gap-1.5 mt-1 font-bold text-xs text-[var(--text-primary)]">
                     <span
-                      className="w-2.5 h-2.5 rounded-full"
+                      className="w-2 h-2 rounded-full"
                       style={{
                         backgroundColor: getLanguageColor(userB.primaryLanguage),
                       }}
@@ -301,8 +297,8 @@ export const CompareModal: React.FC<CompareModalProps> = ({
             </div>
           </div>
         ) : (
-          <div className="mt-8 py-10 text-center text-[var(--text-secondary)] text-sm">
-            Enter a GitHub handle above to load and compare stats in real-time.
+          <div className="mt-8 py-10 text-center text-[#8b949e] text-xs">
+            Enter a GitHub handle above to load and compare developer stats.
           </div>
         )}
       </div>

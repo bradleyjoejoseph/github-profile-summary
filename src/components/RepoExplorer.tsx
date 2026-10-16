@@ -19,7 +19,6 @@ export const RepoExplorer: React.FC<RepoExplorerProps> = ({ repos }) => {
   const [filterType, setFilterType] = useState<'all' | 'sources' | 'forks'>('all');
   const [sortBy, setSortBy] = useState<'stars' | 'forks' | 'updated' | 'name'>('stars');
 
-  // Extract all unique languages
   const languages = useMemo(() => {
     const set = new Set<string>();
     repos.forEach((r) => {
@@ -28,21 +27,17 @@ export const RepoExplorer: React.FC<RepoExplorerProps> = ({ repos }) => {
     return Array.from(set).sort();
   }, [repos]);
 
-  // Filter and sort repos
   const filteredRepos = useMemo(() => {
     return repos
       .filter((repo) => {
-        // Search filter
         const matchesSearch =
           repo.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           (repo.description &&
             repo.description.toLowerCase().includes(searchTerm.toLowerCase()));
 
-        // Language filter
         const matchesLang =
           selectedLanguage === 'all' || repo.language === selectedLanguage;
 
-        // Type filter
         const matchesType =
           filterType === 'all' ||
           (filterType === 'sources' && !repo.fork) ||
@@ -60,40 +55,40 @@ export const RepoExplorer: React.FC<RepoExplorerProps> = ({ repos }) => {
   }, [repos, searchTerm, selectedLanguage, filterType, sortBy]);
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
-      <div className="rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-color)] p-6 shadow-md transition-colors">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-7">
+      <div className="apple-card p-6">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[var(--border-color)] pb-5">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5 pb-4">
           <div>
-            <h2 className="text-xl font-bold text-[var(--text-primary)] flex items-center gap-2">
-              <BookMarked className="w-5 h-5 text-blue-400" />
+            <h2 className="text-lg font-bold text-[var(--text-primary)] flex items-center gap-2">
+              <BookMarked className="w-4 h-4 text-[#2997ff]" />
               Repository Explorer
             </h2>
-            <p className="text-xs text-[var(--text-secondary)] mt-0.5">
+            <p className="text-xs text-[#8b949e] mt-0.5">
               Showing {filteredRepos.length} of {repos.length} public projects
             </p>
           </div>
 
           {/* Search & Filters */}
-          <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-2">
             {/* Search Input */}
-            <div className="relative flex-1 sm:w-60">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]" />
+            <div className="relative flex-1 sm:w-56">
+              <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#8b949e]" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Filter repositories..."
-                className="w-full py-2 pl-9 pr-3 rounded-xl bg-[var(--bg-card)] border border-[var(--border-color)] text-xs text-[var(--text-primary)] placeholder-[var(--text-secondary)] focus:outline-hidden focus:border-[var(--accent)]"
+                className="w-full py-1.5 pl-8 pr-3 rounded-xl bg-black/40 border border-white/10 text-xs text-[var(--text-primary)] placeholder-[#6e7681] focus:outline-hidden focus:border-[#2997ff]"
               />
             </div>
 
-            {/* Language Dropdown */}
+            {/* Language Capsule */}
             <div className="relative">
               <select
                 value={selectedLanguage}
                 onChange={(e) => setSelectedLanguage(e.target.value)}
-                className="py-2 px-3 rounded-xl bg-[var(--bg-card)] border border-[var(--border-color)] text-xs text-[var(--text-primary)] focus:outline-hidden focus:border-[var(--accent)] cursor-pointer"
+                className="py-1.5 px-3 rounded-xl bg-black/40 border border-white/10 text-xs text-[var(--text-primary)] focus:outline-hidden focus:border-[#2997ff] cursor-pointer"
               >
                 <option value="all">All Languages</option>
                 {languages.map((lang) => (
@@ -104,12 +99,12 @@ export const RepoExplorer: React.FC<RepoExplorerProps> = ({ repos }) => {
               </select>
             </div>
 
-            {/* Type Filter */}
+            {/* Type Capsule */}
             <div className="relative">
               <select
                 value={filterType}
                 onChange={(e) => setFilterType(e.target.value as any)}
-                className="py-2 px-3 rounded-xl bg-[var(--bg-card)] border border-[var(--border-color)] text-xs text-[var(--text-primary)] focus:outline-hidden focus:border-[var(--accent)] cursor-pointer"
+                className="py-1.5 px-3 rounded-xl bg-black/40 border border-white/10 text-xs text-[var(--text-primary)] focus:outline-hidden focus:border-[#2997ff] cursor-pointer"
               >
                 <option value="all">All Types</option>
                 <option value="sources">Sources Only</option>
@@ -117,12 +112,12 @@ export const RepoExplorer: React.FC<RepoExplorerProps> = ({ repos }) => {
               </select>
             </div>
 
-            {/* Sort Dropdown */}
+            {/* Sort Order */}
             <div className="relative flex items-center">
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
-                className="py-2 px-3 rounded-xl bg-[var(--bg-card)] border border-[var(--border-color)] text-xs text-[var(--text-primary)] focus:outline-hidden focus:border-[var(--accent)] cursor-pointer"
+                className="py-1.5 px-3 rounded-xl bg-black/40 border border-white/10 text-xs text-[var(--text-primary)] focus:outline-hidden focus:border-[#2997ff] cursor-pointer"
               >
                 <option value="stars">Sort by Stars</option>
                 <option value="forks">Sort by Forks</option>
@@ -134,9 +129,9 @@ export const RepoExplorer: React.FC<RepoExplorerProps> = ({ repos }) => {
         </div>
 
         {/* Repositories Grid */}
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-3.5">
           {filteredRepos.length === 0 ? (
-            <div className="col-span-full py-12 text-center text-[var(--text-secondary)] text-sm">
+            <div className="col-span-full py-12 text-center text-[#8b949e] text-xs">
               No repositories matched your filters.
             </div>
           ) : (
@@ -150,7 +145,7 @@ export const RepoExplorer: React.FC<RepoExplorerProps> = ({ repos }) => {
               return (
                 <div
                   key={repo.id}
-                  className="rounded-xl bg-[var(--bg-card)]/50 border border-[var(--border-color)] p-4 flex flex-col justify-between hover:border-[var(--accent)]/50 transition-all hover:shadow-md group"
+                  className="rounded-2xl bg-black/25 border border-white/5 p-4 flex flex-col justify-between hover:border-white/15 hover:bg-black/40 transition-all group"
                 >
                   <div>
                     <div className="flex items-start justify-between gap-2">
@@ -158,36 +153,36 @@ export const RepoExplorer: React.FC<RepoExplorerProps> = ({ repos }) => {
                         href={repo.html_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="font-bold text-sm text-[var(--accent)] hover:underline flex items-center gap-1.5 truncate group-hover:text-blue-400"
+                        className="font-bold text-sm text-[var(--text-primary)] hover:text-[#2997ff] hover:underline flex items-center gap-1.5 truncate group-hover:text-[#2997ff] transition-colors"
                       >
                         <span className="truncate">{repo.name}</span>
-                        <ExternalLink className="w-3.5 h-3.5 shrink-0 opacity-70" />
+                        <ExternalLink className="w-3 h-3 shrink-0 opacity-60" />
                       </a>
                       <div className="flex items-center gap-1.5 shrink-0">
                         {repo.fork && (
-                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20 font-mono">
                             Fork
                           </span>
                         )}
                         {repo.license && (
-                          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[var(--bg-secondary)] text-[var(--text-secondary)] border border-[var(--border-color)]">
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/5 text-[#8b949e] border border-white/10">
                             {repo.license.spdx_id || repo.license.name}
                           </span>
                         )}
                       </div>
                     </div>
 
-                    <p className="mt-2 text-xs text-[var(--text-secondary)] line-clamp-2 leading-relaxed min-h-[32px]">
+                    <p className="mt-2 text-xs text-[#8b949e] line-clamp-2 leading-relaxed min-h-[32px]">
                       {repo.description || 'No description provided.'}
                     </p>
 
                     {/* Topics */}
                     {repo.topics && repo.topics.length > 0 && (
-                      <div className="mt-3 flex flex-wrap gap-1.5">
+                      <div className="mt-3 flex flex-wrap gap-1">
                         {repo.topics.slice(0, 4).map((topic) => (
                           <span
                             key={topic}
-                            className="text-[10px] px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-400 font-medium"
+                            className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/10 text-[#2997ff] font-medium"
                           >
                             #{topic}
                           </span>
@@ -197,32 +192,32 @@ export const RepoExplorer: React.FC<RepoExplorerProps> = ({ repos }) => {
                   </div>
 
                   {/* Card Footer */}
-                  <div className="mt-4 pt-3 border-t border-[var(--border-color)]/70 flex items-center justify-between text-xs text-[var(--text-secondary)]">
+                  <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-xs text-[#8b949e]">
                     <div className="flex items-center gap-3">
                       {repo.language && (
                         <div className="flex items-center gap-1.5">
                           <span
-                            className="w-2.5 h-2.5 rounded-full shrink-0"
+                            className="w-2 h-2 rounded-full shrink-0"
                             style={{ backgroundColor: langColor }}
                           />
-                          <span className="font-medium text-[var(--text-primary)]">
+                          <span className="font-medium text-[var(--text-primary)] text-[11px]">
                             {repo.language}
                           </span>
                         </div>
                       )}
 
-                      <div className="flex items-center gap-1 text-amber-400 font-mono">
-                        <Star className="w-3.5 h-3.5" />
+                      <div className="flex items-center gap-1 text-amber-400 font-mono text-[11px]">
+                        <Star className="w-3 h-3" />
                         <span>{repo.stargazers_count}</span>
                       </div>
 
-                      <div className="flex items-center gap-1 text-emerald-400 font-mono">
-                        <GitFork className="w-3.5 h-3.5" />
+                      <div className="flex items-center gap-1 text-emerald-400 font-mono text-[11px]">
+                        <GitFork className="w-3 h-3" />
                         <span>{repo.forks_count}</span>
                       </div>
                     </div>
 
-                    <span className="text-[11px] font-mono opacity-80">
+                    <span className="text-[10px] font-mono text-[#6e7681]">
                       Updated {updatedDate}
                     </span>
                   </div>

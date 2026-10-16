@@ -27,7 +27,7 @@ export const RepoAnalytics: React.FC<RepoAnalyticsProps> = ({
 
   if (rawRepos.length === 0) {
     return (
-      <div className="rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-color)] p-6 text-center text-[var(--text-secondary)]">
+      <div className="apple-card p-6 text-center text-[#8b949e]">
         No repository metrics available.
       </div>
     );
@@ -44,51 +44,44 @@ export const RepoAnalytics: React.FC<RepoAnalyticsProps> = ({
   }));
 
   return (
-    <div className="rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-color)] p-6 shadow-md transition-colors">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--border-color)] pb-4">
+    <div className="apple-card p-6 flex flex-col justify-between">
+      {/* Widget Header with Apple Segmented Control */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/5 pb-4">
         <div>
-          <h2 className="text-lg font-bold text-[var(--text-primary)] flex items-center gap-2">
-            <BarChart3 className="w-5 h-5 text-indigo-400" />
+          <h2 className="text-base font-bold text-[var(--text-primary)] flex items-center gap-2">
+            <BarChart3 className="w-4 h-4 text-indigo-400" />
             Repository Impact Ranking
           </h2>
-          <p className="text-xs text-[var(--text-secondary)] mt-0.5">
+          <p className="text-xs text-[#8b949e] mt-0.5">
             Top projects ranked by community popularity
           </p>
         </div>
 
-        {/* Metric Switch */}
-        <div className="flex items-center bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl p-1 text-xs">
+        {/* Apple Segmented Toggle */}
+        <div className="apple-segmented-track">
           <button
             onClick={() => setMetric('stars')}
-            className={`px-3 py-1.5 rounded-lg font-medium transition-all flex items-center gap-1.5 ${
-              metric === 'stars'
-                ? 'bg-blue-600 text-white shadow-xs'
-                : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-            }`}
+            className={`apple-segmented-item flex items-center gap-1.5 ${metric === 'stars' ? 'active' : ''}`}
           >
-            <Star className="w-3.5 h-3.5 text-amber-400" />
-            <span>Stars per Repo</span>
+            <Star className="w-3 h-3 text-amber-400" />
+            <span>Stars</span>
           </button>
           <button
             onClick={() => setMetric('forks')}
-            className={`px-3 py-1.5 rounded-lg font-medium transition-all flex items-center gap-1.5 ${
-              metric === 'forks'
-                ? 'bg-blue-600 text-white shadow-xs'
-                : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-            }`}
+            className={`apple-segmented-item flex items-center gap-1.5 ${metric === 'forks' ? 'active' : ''}`}
           >
-            <GitFork className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Forks per Repo</span>
+            <GitFork className="w-3 h-3 text-emerald-400" />
+            <span>Forks</span>
           </button>
         </div>
       </div>
 
-      <div className="mt-6 h-72 w-full">
+      <div className="mt-5 h-64 w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 25 }}>
+          <BarChart data={chartData} margin={{ top: 10, right: 10, left: -25, bottom: 20 }}>
             <XAxis
               dataKey="name"
-              stroke="var(--text-secondary)"
+              stroke="#8b949e"
               fontSize={11}
               tickLine={false}
               interval={0}
@@ -96,7 +89,7 @@ export const RepoAnalytics: React.FC<RepoAnalyticsProps> = ({
               textAnchor="end"
             />
             <YAxis
-              stroke="var(--text-secondary)"
+              stroke="#8b949e"
               fontSize={11}
               tickLine={false}
               axisLine={false}
@@ -106,22 +99,22 @@ export const RepoAnalytics: React.FC<RepoAnalyticsProps> = ({
                 if (active && payload && payload.length) {
                   const item = payload[0].payload;
                   return (
-                    <div className="bg-[var(--chart-tooltip-bg)] border border-[var(--border-color)] p-3 rounded-xl shadow-xl text-xs max-w-xs">
-                      <div className="font-bold text-[var(--chart-tooltip-text)] truncate">
+                    <div className="apple-glass-dock p-3 rounded-xl shadow-xl text-xs max-w-xs">
+                      <div className="font-bold text-white truncate">
                         {item.fullName}
                       </div>
                       {item.description && (
-                        <p className="mt-1 text-[var(--text-secondary)] text-[11px] line-clamp-2">
+                        <p className="mt-1 text-[#8b949e] text-[11px] line-clamp-2">
                           {item.description}
                         </p>
                       )}
-                      <div className="mt-2 pt-2 border-t border-[var(--border-color)] flex items-center justify-between">
+                      <div className="mt-2 pt-2 border-t border-white/10 flex items-center justify-between">
                         <span className="flex items-center gap-1">
                           <span
                             className="w-2 h-2 rounded-full"
                             style={{ backgroundColor: item.color }}
                           />
-                          <span className="text-[var(--text-secondary)]">{item.language}</span>
+                          <span className="text-[#8b949e]">{item.language}</span>
                         </span>
                         <span className="font-mono font-bold text-amber-400 flex items-center gap-1">
                           {metric === 'stars' ? `★ ${item.value}` : `🍴 ${item.value}`}

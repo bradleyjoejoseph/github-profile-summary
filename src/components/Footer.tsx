@@ -4,29 +4,29 @@ import { GithubIcon } from './icons/GithubIcon';
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="mt-20 border-t border-[var(--border-color)] bg-[var(--bg-secondary)]/50 py-12 transition-colors">
+    <footer className="mt-16 border-t border-white/5 py-10 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           {/* Left info */}
           <div className="text-center md:text-left">
             <div className="flex items-center justify-center md:justify-start gap-2">
-              <span className="font-bold text-base text-[var(--text-primary)]">
+              <span className="font-bold text-sm tracking-tight text-[var(--text-primary)]">
                 GitPulse
               </span>
-              <span className="text-xs px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 font-mono border border-blue-500/20">
-                v2.0
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/10 text-[#2997ff] font-mono border border-blue-500/20">
+                macOS + Primer Design
               </span>
             </div>
-            <p className="mt-1 text-xs text-[var(--text-secondary)]">
-              Next-generation GitHub profile visualizer, analytics suite, and card generator.
+            <p className="mt-1 text-xs text-[#8b949e]">
+              A fusion of Apple HIG craft and GitHub developer aesthetics.
             </p>
-            <p className="mt-2 text-xs text-[var(--text-secondary)] flex items-center justify-center md:justify-start gap-1">
-              Crafted with <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" /> by{' '}
+            <p className="mt-1.5 text-xs text-[#8b949e] flex items-center justify-center md:justify-start gap-1">
+              Crafted with <Heart className="w-3 h-3 text-rose-500 fill-rose-500" /> by{' '}
               <a
                 href="https://github.com/bradleyjoejoseph"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-semibold text-[var(--text-primary)] hover:text-blue-400 hover:underline"
+                className="font-semibold text-[var(--text-primary)] hover:text-[#2997ff] hover:underline"
               >
                 Bradley Joseph
               </a>{' '}
@@ -35,26 +35,26 @@ export const Footer: React.FC = () => {
           </div>
 
           {/* Center tech stack pills */}
-          <div className="flex flex-wrap items-center justify-center gap-1.5 text-[11px] font-mono text-[var(--text-secondary)]">
-            <span className="px-2 py-1 rounded-md bg-[var(--bg-card)] border border-[var(--border-color)]">
+          <div className="flex flex-wrap items-center justify-center gap-1.5 text-[10px] font-mono text-[#8b949e]">
+            <span className="px-2.5 py-1 rounded-lg bg-black/40 border border-white/5">
+              Apple HIG
+            </span>
+            <span className="px-2.5 py-1 rounded-lg bg-black/40 border border-white/5">
+              GitHub Primer
+            </span>
+            <span className="px-2.5 py-1 rounded-lg bg-black/40 border border-white/5">
               React 19
             </span>
-            <span className="px-2 py-1 rounded-md bg-[var(--bg-card)] border border-[var(--border-color)]">
+            <span className="px-2.5 py-1 rounded-lg bg-black/40 border border-white/5">
               TypeScript
             </span>
-            <span className="px-2 py-1 rounded-md bg-[var(--bg-card)] border border-[var(--border-color)]">
-              Tailwind CSS
-            </span>
-            <span className="px-2 py-1 rounded-md bg-[var(--bg-card)] border border-[var(--border-color)]">
-              Recharts
-            </span>
-            <span className="px-2 py-1 rounded-md bg-[var(--bg-card)] border border-[var(--border-color)]">
-              Vite
+            <span className="px-2.5 py-1 rounded-lg bg-black/40 border border-white/5">
+              Tailwind 4
             </span>
           </div>
 
           {/* Right Links */}
-          <div className="flex items-center gap-4 text-xs text-[var(--text-secondary)]">
+          <div className="flex items-center gap-4 text-xs text-[#8b949e]">
             <a
               href="https://bradleyjoejoseph.github.io/"
               target="_blank"
@@ -77,9 +77,9 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* Tribute footnote */}
-        <div className="mt-8 pt-6 border-t border-[var(--border-color)]/60 text-center text-[11px] text-[var(--text-secondary)]/80">
+        <div className="mt-6 pt-5 border-t border-white/5 text-center text-[11px] text-[#6e7681]">
           <p>
-            Modern tribute inspired by the classic <code>profile-summary-for-github</code>. Data fetched live via official GitHub REST v3 API.
+            Reimagining <code>profile-summary-for-github</code> with Apple Human Interface Guidelines and modern web standards.
           </p>
         </div>
       </div>
