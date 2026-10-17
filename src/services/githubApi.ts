@@ -11,7 +11,7 @@ import type {
 import { getLanguageColor } from './languageColors';
 
 const TOKEN_STORAGE_KEY = 'gitpulse_gh_token';
-const CACHE_PREFIX = 'gitpulse_cache_';
+const CACHE_PREFIX = 'gitpulse_cache_v2_';
 const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes
 
 export function getStoredToken(): string | null {
@@ -106,31 +106,55 @@ export async function fetchUserSummary(
 
   const user: GitHubUser = await userRes.json();
 
-  // 2. Fetch Repositories (up to 100 repos sorted by updated)
+  // 2. Fetch Repositories, Public Events, and Lifetime Contributions in parallel
   let repos: GitHubRepo[] = [];
-  try {
-    const reposRes = await fetchWithAuth(
-      `https://api.github.com/users/${cleanUsername}/repos?per_page=100&sort=pushed`
-    );
-    if (reposRes.ok) {
-      repos = await reposRes.json();
-    }
-  } catch (err) {
-    console.warn('Could not fetch repos:', err);
-  }
-
-  // 3. Fetch Public Events (for commit habits & punchcard)
   let events: GitHubEvent[] = [];
-  try {
-    const eventsRes = await fetchWithAuth(
-      `https://api.github.com/users/${cleanUsername}/events/public?per_page=100`
-    );
-    if (eventsRes.ok) {
-      events = await eventsRes.json();
-    }
-  } catch (err) {
-    console.warn('Could not fetch events:', err);
-  }
+  let totalContributions = 0;
+
+  await Promise.all([
+    (async () => {
+      try {
+        const reposRes = await fetchWithAuth(
+          `https://api.github.com/users/${cleanUsername}/repos?per_page=100&sort=pushed`
+        );
+        if (reposRes.ok) {
+          repos = await reposRes.json();
+        }
+      } catch (err) {
+        console.warn('Could not fetch repos:', err);
+      }
+    })(),
+    (async () => {
+      try {
+        const eventsRes = await fetchWithAuth(
+          `https://api.github.com/users/${cleanUsername}/events/public?per_page=100`
+        );
+        if (eventsRes.ok) {
+          events = await eventsRes.json();
+        }
+      } catch (err) {
+        console.warn('Could not fetch events:', err);
+      }
+    })(),
+    (async () => {
+      try {
+        const contribRes = await fetch(
+          `https://github-contributions-api.jogruber.de/v4/${cleanUsername}`
+        );
+        if (contribRes.ok) {
+          const contribData = await contribRes.json();
+          if (contribData && contribData.total && typeof contribData.total === 'object') {
+            totalContributions = Object.values(contribData.total as Record<string, number>).reduce(
+              (sum, val) => sum + (Number(val) || 0),
+              0
+            );
+          }
+        }
+      } catch (err) {
+        console.warn('Could not fetch lifetime contributions:', err);
+      }
+    })(),
+  ]);
 
   // Calculate statistics
   let totalStars = 0;
@@ -198,7 +222,6 @@ export async function fetchUserSummary(
     }
   });
 
-  // If user has zero public events recently, fallback gracefully with repo creation dates
   const hasEvents = events.length > 0;
   if (!hasEvents && repos.length > 0) {
     repos.forEach((repo) => {
@@ -206,6 +229,10 @@ export async function fetchUserSummary(
       dayCounts[date.getDay()] += 1;
       hourCounts[date.getHours()] += 1;
     });
+  }
+
+  if (!totalContributions) {
+    totalContributions = Math.max(events.length * 6, user.public_repos * 25);
   }
 
   const dayActivity: DayActivity[] = daysOfWeek.map((day, idx) => ({
@@ -233,6 +260,7 @@ export async function fetchUserSummary(
     primaryLanguage,
     sourceReposCount,
     forkedReposCount,
+    totalContributions,
     cachedAt: Date.now(),
   };
 

@@ -103,5 +103,6 @@ export interface UserSummaryData {
   primaryLanguage: string;
   sourceReposCount: number;
   forkedReposCount: number;
+  totalContributions?: number;
   cachedAt?: number;
 }

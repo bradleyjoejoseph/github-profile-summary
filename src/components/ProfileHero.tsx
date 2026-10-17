@@ -13,7 +13,7 @@ import {
   Check,
   Star,
   BookOpen,
-  Code2,
+  GitCommitHorizontal,
   Sparkles,
   Trophy,
   Zap,
@@ -41,7 +41,6 @@ export const ProfileHero: React.FC<ProfileHeroProps> = ({
   summary,
   totalStars,
   primaryLanguage = 'TypeScript',
-  sourceReposCount,
   onRefresh,
   onOpenCompare,
   onOpenExportCard,
@@ -63,8 +62,6 @@ export const ProfileHero: React.FC<ProfileHeroProps> = ({
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
-
-  const calculatedSources = sourceReposCount ?? user.public_repos;
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-5">
@@ -249,7 +246,7 @@ export const ProfileHero: React.FC<ProfileHeroProps> = ({
                   </span>
                   <span className="text-xs font-bold font-mono text-[#2997ff]">GP</span>
                   <span className="text-xs text-[#8b949e] hidden sm:inline">
-                    • Based on Originality, Tenure, Polyglot Stack & Scale
+                    • Based on Commits, Stars, Forks, Followers & Repositories
                   </span>
                 </div>
               </div>
@@ -319,11 +316,19 @@ export const ProfileHero: React.FC<ProfileHeroProps> = ({
           )}
         </div>
 
-        {/* macOS Control Center Ribbon - Curated High-Impact Stats */}
+        {/* macOS Control Center Ribbon - Key GitHub Impact Stats */}
         <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3.5">
           <div className="p-3 rounded-2xl bg-black/30 border border-white/5 text-center">
             <span className="text-[11px] text-[#8b949e] uppercase font-semibold tracking-wider flex items-center justify-center gap-1">
-              <BookOpen className="w-3 h-3 text-[#2997ff]" /> Total Repos
+              <GitCommitHorizontal className="w-3.5 h-3.5 text-emerald-400" /> Total Commits
+            </span>
+            <p className="text-xl sm:text-2xl font-bold font-mono text-emerald-400 mt-1">
+              {gpResult.metrics.totalCommits.toLocaleString()}
+            </p>
+          </div>
+          <div className="p-3 rounded-2xl bg-black/30 border border-white/5 text-center">
+            <span className="text-[11px] text-[#8b949e] uppercase font-semibold tracking-wider flex items-center justify-center gap-1">
+              <BookOpen className="w-3 h-3 text-[#2997ff]" /> Public Repos
             </span>
             <p className="text-xl sm:text-2xl font-bold font-mono text-[var(--text-primary)] mt-1">
               {user.public_repos.toLocaleString()}
@@ -331,15 +336,7 @@ export const ProfileHero: React.FC<ProfileHeroProps> = ({
           </div>
           <div className="p-3 rounded-2xl bg-black/30 border border-white/5 text-center">
             <span className="text-[11px] text-[#8b949e] uppercase font-semibold tracking-wider flex items-center justify-center gap-1">
-              <Code2 className="w-3 h-3 text-emerald-400" /> Source Projects
-            </span>
-            <p className="text-xl sm:text-2xl font-bold font-mono text-emerald-400 mt-1">
-              {calculatedSources} Sources
-            </p>
-          </div>
-          <div className="p-3 rounded-2xl bg-black/30 border border-white/5 text-center">
-            <span className="text-[11px] text-[#8b949e] uppercase font-semibold tracking-wider flex items-center justify-center gap-1">
-              <Calendar className="w-3 h-3 text-purple-400" /> Tenure
+              <Calendar className="w-3 h-3 text-purple-400" /> Years Active
             </span>
             <p className="text-xl sm:text-2xl font-bold font-mono text-purple-400 mt-1">
               {yearsOnGithub}y+ Active

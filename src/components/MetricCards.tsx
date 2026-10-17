@@ -1,7 +1,8 @@
 import React from 'react';
-import { Star, BookOpen, Code2, Layers, Cpu, ShieldCheck } from 'lucide-react';
+import { Star, BookOpen, Code2, Layers, Calendar, GitCommitHorizontal } from 'lucide-react';
 import type { UserSummaryData } from '../types/github';
 import { getLanguageColor } from '../services/languageColors';
+import { calculateGitPulseScore } from '../services/gitpulseScore';
 
 interface MetricCardsProps {
   summary: UserSummaryData;
@@ -10,39 +11,50 @@ interface MetricCardsProps {
 export const MetricCards: React.FC<MetricCardsProps> = ({ summary }) => {
   const {
     totalStars,
-    sourceReposCount,
+    totalForks,
     primaryLanguage,
     user,
     languageStats,
   } = summary;
 
+  const gp = calculateGitPulseScore(summary);
   const langColor = getLanguageColor(primaryLanguage);
-
-  // Top technologies mastered
   const topLanguages = languageStats.slice(0, 3).map((l) => l.name).join(', ') || primaryLanguage;
-  const originalRatio = Math.round((sourceReposCount / Math.max(1, user.public_repos)) * 100);
 
   const cards = [
     {
-      title: 'Total Codebases',
+      title: 'Total Commits',
+      value: gp.metrics.totalCommits.toLocaleString(),
+      subtitle: 'Lifetime code commits & contributions',
+      icon: GitCommitHorizontal,
+      iconColor: 'text-emerald-400',
+      iconBg: 'bg-emerald-400/10 border-emerald-400/20',
+    },
+    {
+      title: 'Public Repositories',
       value: user.public_repos.toLocaleString(),
-      subtitle: `${sourceReposCount} original source repositories`,
+      subtitle: 'Open-source projects & packages published',
       icon: BookOpen,
       iconColor: 'text-[#2997ff]',
       iconBg: 'bg-blue-500/10 border-blue-500/20',
     },
     {
-      title: 'Originality Ratio',
-      value: `${originalRatio}% Original`,
-      subtitle: 'Custom-built software from scratch',
-      icon: ShieldCheck,
-      iconColor: 'text-emerald-400',
-      iconBg: 'bg-emerald-400/10 border-emerald-400/20',
+      title: 'Total Stars',
+      value: `★ ${totalStars.toLocaleString()}`,
+      subtitle:
+        totalForks > 0
+          ? `${totalForks.toLocaleString()} repository forks worldwide`
+          : summary.topStarredRepos[0]?.name
+          ? `Featured: ${summary.topStarredRepos[0].name}`
+          : 'Open-source community impact',
+      icon: Star,
+      iconColor: 'text-amber-400',
+      iconBg: 'bg-amber-400/10 border-amber-400/20',
     },
     {
       title: 'Primary Language',
       value: primaryLanguage,
-      subtitle: `${summary.languageStats[0]?.percentage || 0}% of all projects`,
+      subtitle: `${summary.languageStats[0]?.percentage || 0}% of active repositories`,
       icon: Code2,
       iconColor: 'text-indigo-400',
       iconBg: 'bg-indigo-400/10 border-indigo-400/20',
@@ -54,28 +66,18 @@ export const MetricCards: React.FC<MetricCardsProps> = ({ summary }) => {
       ),
     },
     {
-      title: 'Tech Stack Breadth',
+      title: 'Languages Used',
       value: `${languageStats.length} Languages`,
-      subtitle: topLanguages ? `Proficient in: ${topLanguages}` : 'Multi-language engineering',
+      subtitle: topLanguages ? `Core stack: ${topLanguages}` : 'Multi-language engineering',
       icon: Layers,
       iconColor: 'text-purple-400',
       iconBg: 'bg-purple-500/10 border-purple-500/20',
     },
     {
-      title: 'Community Impact',
-      value: totalStars > 0 ? `★ ${totalStars.toLocaleString()}` : `${user.public_repos} Projects`,
-      subtitle: summary.topStarredRepos[0]?.name
-        ? `Featured: ${summary.topStarredRepos[0].name}`
-        : 'Open-source software published',
-      icon: Star,
-      iconColor: 'text-amber-400',
-      iconBg: 'bg-amber-400/10 border-amber-400/20',
-    },
-    {
-      title: 'Specialization',
-      value: 'SaaS & AI Engineer',
-      subtitle: 'Full-stack software and intelligent systems',
-      icon: Cpu,
+      title: 'GitHub Experience',
+      value: `${gp.metrics.yearsActive}+ Years`,
+      subtitle: `Active on GitHub since ${new Date(user.created_at).getFullYear()}`,
+      icon: Calendar,
       iconColor: 'text-cyan-400',
       iconBg: 'bg-cyan-500/10 border-cyan-500/20',
     },
@@ -86,10 +88,10 @@ export const MetricCards: React.FC<MetricCardsProps> = ({ summary }) => {
       {/* Section Header */}
       <div className="flex items-center justify-between mb-3 px-1">
         <span className="text-[11px] font-semibold uppercase tracking-wider text-[#8b949e]">
-          Engineering Highlights
+          Core GitHub Statistics
         </span>
         <span className="text-[10px] font-mono text-[#6e7681]">
-          Control Center Widgets
+          Verified Activity & Impact
         </span>
       </div>
 

@@ -3,10 +3,9 @@ import {
   Trophy,
   Crown,
   Swords,
-  Code2,
-  Cpu,
-  Calendar,
-  HardDrive,
+  GitCommitHorizontal,
+  GitFork,
+  Users,
   BookOpen,
   Star,
   Plus,
@@ -20,12 +19,11 @@ import { calculateGitPulseScore, useCountUpFromZero } from '../services/gitpulse
 
 export type LeaderboardCategoryId =
   | 'gp_score'
-  | 'originality'
-  | 'polyglot'
-  | 'tenure'
-  | 'scale'
-  | 'repos'
-  | 'stars';
+  | 'stars'
+  | 'commits'
+  | 'forks'
+  | 'followers'
+  | 'repos';
 
 interface CategoryConfig {
   id: LeaderboardCategoryId;
@@ -54,7 +52,7 @@ interface LeaderboardPageProps {
 }
 
 const ScoreCell: React.FC<{ score: number; triggerKey: string }> = ({ score, triggerKey }) => {
-  const animated = useCountUpFromZero(score, 1300, triggerKey);
+  const animated = useCountUpFromZero(score, 1200, triggerKey);
   return <>{animated.toLocaleString()}</>;
 };
 
@@ -82,73 +80,63 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
     () => [
       {
         id: 'gp_score',
-        label: 'GitPulse Score (GP)',
+        label: 'GitPulse Score',
         shortLabel: 'GitPulse Score',
-        description: 'Weighted engineering score based on Originality, Tenure, Polyglot Stack, Codebase Scale, and Impact',
+        description: 'Overall weighted score combining Stars, Commits, Forks, Followers, and Repositories',
         icon: <Trophy className="w-4 h-4 text-amber-400" />,
         accentColor: '#f59e0b',
         getValue: (e) => e.gp.totalScore,
         formatValue: (e) => `${e.gp.totalScore.toLocaleString()} GP`,
       },
       {
-        id: 'originality',
-        label: 'Originality Ratio',
-        shortLabel: 'Originality',
-        description: 'Highest percentage of original, non-forked source repositories built from scratch',
-        icon: <Code2 className="w-4 h-4 text-emerald-400" />,
-        accentColor: '#10b981',
-        getValue: (e) => e.gp.metrics.originalityPct * 1000 + e.gp.metrics.sourceRepos,
-        formatValue: (e) => `${e.gp.metrics.originalityPct}% (${e.gp.metrics.sourceRepos} sources)`,
-      },
-      {
-        id: 'polyglot',
-        label: 'Polyglot Arsenal',
-        shortLabel: 'Polyglot Stack',
-        description: 'Most programming languages mastered across active repositories',
-        icon: <Cpu className="w-4 h-4 text-[#2997ff]" />,
-        accentColor: '#2997ff',
-        getValue: (e) => e.gp.metrics.languagesCount * 1000 + e.gp.metrics.originalityPct,
-        formatValue: (e) => `${e.gp.metrics.languagesCount} Languages`,
-      },
-      {
-        id: 'tenure',
-        label: 'Veteran Tenure',
-        shortLabel: 'GitHub Tenure',
-        description: 'Longest active engineering longevity on GitHub since account creation',
-        icon: <Calendar className="w-4 h-4 text-purple-400" />,
-        accentColor: '#a855f7',
-        getValue: (e) => e.gp.metrics.yearsActive,
-        formatValue: (e) => `${e.gp.metrics.yearsActive} Years Active`,
-      },
-      {
-        id: 'scale',
-        label: 'Codebase Volume',
-        shortLabel: 'Codebase Scale',
-        description: 'Total megabytes of repository source code authored',
-        icon: <HardDrive className="w-4 h-4 text-cyan-400" />,
-        accentColor: '#38bdf8',
-        getValue: (e) => e.gp.metrics.totalCodeMb,
-        formatValue: (e) => `${e.gp.metrics.totalCodeMb.toLocaleString()} MB`,
-      },
-      {
-        id: 'repos',
-        label: 'Shipped Repositories',
-        shortLabel: 'Public Repos',
-        description: 'Total public repositories and open-source packages shipped',
-        icon: <BookOpen className="w-4 h-4 text-indigo-400" />,
-        accentColor: '#818cf8',
-        getValue: (e) => e.gp.metrics.publicRepos,
-        formatValue: (e) => `${e.gp.metrics.publicRepos.toLocaleString()} Repos`,
-      },
-      {
         id: 'stars',
-        label: 'Community Star Power',
+        label: 'Most Stars',
         shortLabel: 'Total Stars',
-        description: 'Total stargazers earned across all public repositories',
+        description: 'Total stargazers earned across all public repositories showing open-source adoption',
         icon: <Star className="w-4 h-4 text-yellow-400" />,
         accentColor: '#facc15',
         getValue: (e) => e.gp.metrics.totalStars,
         formatValue: (e) => `★ ${e.gp.metrics.totalStars.toLocaleString()}`,
+      },
+      {
+        id: 'commits',
+        label: 'Most Commits',
+        shortLabel: 'Total Commits',
+        description: 'Lifetime GitHub commits and code contributions pushed across years active',
+        icon: <GitCommitHorizontal className="w-4 h-4 text-emerald-400" />,
+        accentColor: '#10b981',
+        getValue: (e) => e.gp.metrics.totalCommits,
+        formatValue: (e) => `${e.gp.metrics.totalCommits.toLocaleString()} commits`,
+      },
+      {
+        id: 'forks',
+        label: 'Most Forks',
+        shortLabel: 'Total Forks',
+        description: 'Times other developers around the world forked and built upon their repositories',
+        icon: <GitFork className="w-4 h-4 text-[#2997ff]" />,
+        accentColor: '#2997ff',
+        getValue: (e) => e.gp.metrics.totalForks,
+        formatValue: (e) => `${e.gp.metrics.totalForks.toLocaleString()} forks`,
+      },
+      {
+        id: 'followers',
+        label: 'Most Followers',
+        shortLabel: 'Followers',
+        description: 'Global developer community following their work and releases on GitHub',
+        icon: <Users className="w-4 h-4 text-purple-400" />,
+        accentColor: '#a855f7',
+        getValue: (e) => e.gp.metrics.followers,
+        formatValue: (e) => `${e.gp.metrics.followers.toLocaleString()} followers`,
+      },
+      {
+        id: 'repos',
+        label: 'Most Repositories',
+        shortLabel: 'Public Repos',
+        description: 'Total public repositories and open-source projects published on GitHub',
+        icon: <BookOpen className="w-4 h-4 text-cyan-400" />,
+        accentColor: '#38bdf8',
+        getValue: (e) => e.gp.metrics.publicRepos,
+        formatValue: (e) => `${e.gp.metrics.publicRepos.toLocaleString()} repos`,
       },
     ],
     []
@@ -178,13 +166,14 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-bold mb-3">
               <Trophy className="w-3.5 h-3.5 text-amber-400" />
-              <span>Global Developer Hall of Fame & Stat Leaderboards</span>
+              <span>Global Developer Impact & Stat Leaderboards</span>
             </div>
             <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">
               GitPulse Leaderboards
             </h1>
             <p className="mt-2 text-xs sm:text-sm text-[#8b949e] max-w-2xl leading-relaxed">
-              Developers are ranked by their <span className="text-[#2997ff] font-semibold">GitPulse Score</span> and individual category stats across Originality, Tenure, Polyglot Stack, Codebase Scale, and Impact.
+              Developers ranked by their <span className="text-[#2997ff] font-semibold">GitPulse Score</span> and real-world impact across{' '}
+              <span className="text-white font-medium">Stars, Commits, Forks, Followers, and Repositories</span>.
             </p>
           </div>
 
@@ -222,58 +211,58 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
                 className="text-[#2997ff] hover:underline flex items-center gap-1 cursor-pointer"
               >
                 <Info className="w-3 h-3" />
-                <span>{showFormulaModal ? 'Hide Weightings Formula' : 'How GitPulse Score Works'}</span>
+                <span>{showFormulaModal ? 'Hide Score Weightings' : 'How GitPulse Score Works'}</span>
               </button>
             </div>
           </div>
         </div>
 
-        {/* Optional Formula Explanation Drawer */}
+        {/* Formula Explanation Drawer */}
         {showFormulaModal && (
           <div className="mt-5 pt-5 border-t border-white/10 grid grid-cols-1 sm:grid-cols-5 gap-3 battle-round-slide-down">
             <div className="p-3 rounded-xl bg-black/40 border border-emerald-500/20">
-              <span className="text-[11px] font-bold text-emerald-400 uppercase">1. Original Sources</span>
-              <p className="text-xs font-mono font-bold text-white mt-1">4 GP × Source Repos</p>
-              <p className="text-[11px] text-[#8b949e] mt-0.5">Rewards building original code over forks</p>
-            </div>
-            <div className="p-3 rounded-xl bg-black/40 border border-purple-500/20">
-              <span className="text-[11px] font-bold text-purple-400 uppercase">2. GitHub Tenure</span>
-              <p className="text-xs font-mono font-bold text-white mt-1">4 GP × Years Active</p>
-              <p className="text-[11px] text-[#8b949e] mt-0.5">Rewards long-term GitHub engineering history</p>
-            </div>
-            <div className="p-3 rounded-xl bg-black/40 border border-blue-500/20">
-              <span className="text-[11px] font-bold text-[#2997ff] uppercase">3. Polyglot Stack</span>
-              <p className="text-xs font-mono font-bold text-white mt-1">6 GP × Languages</p>
-              <p className="text-[11px] text-[#8b949e] mt-0.5">Rewards multi-language versatility</p>
-            </div>
-            <div className="p-3 rounded-xl bg-black/40 border border-cyan-500/20">
-              <span className="text-[11px] font-bold text-cyan-400 uppercase">4. Codebase Scale</span>
-              <p className="text-xs font-mono font-bold text-white mt-1">1 GP/repo + 1 GP/40MB</p>
-              <p className="text-[11px] text-[#8b949e] mt-0.5">Rewards codebase volume & shipped projects</p>
+              <span className="text-[11px] font-bold text-emerald-400 uppercase">1. Total Commits</span>
+              <p className="text-xs font-mono font-bold text-white mt-1">1 GP / 12.5 Commits</p>
+              <p className="text-[11px] text-[#8b949e] mt-0.5">Rewards consistent code contributions</p>
             </div>
             <div className="p-3 rounded-xl bg-black/40 border border-amber-500/20">
-              <span className="text-[11px] font-bold text-amber-400 uppercase">5. Activity & Impact</span>
-              <p className="text-xs font-mono font-bold text-white mt-1">Events + Star Impact</p>
-              <p className="text-[11px] text-[#8b949e] mt-0.5">Grows as you push commits and earn stars</p>
+              <span className="text-[11px] font-bold text-amber-400 uppercase">2. Total Stars</span>
+              <p className="text-xs font-mono font-bold text-white mt-1">√Stars × 1.4 GP</p>
+              <p className="text-[11px] text-[#8b949e] mt-0.5">Measures open-source impact & adoption</p>
+            </div>
+            <div className="p-3 rounded-xl bg-black/40 border border-purple-500/20">
+              <span className="text-[11px] font-bold text-purple-400 uppercase">3. Forks & Reach</span>
+              <p className="text-xs font-mono font-bold text-white mt-1">Forks + Followers</p>
+              <p className="text-[11px] text-[#8b949e] mt-0.5">Global developer community reach</p>
+            </div>
+            <div className="p-3 rounded-xl bg-black/40 border border-blue-500/20">
+              <span className="text-[11px] font-bold text-[#2997ff] uppercase">4. Public Repos</span>
+              <p className="text-xs font-mono font-bold text-white mt-1">2 GP × Public Repos</p>
+              <p className="text-[11px] text-[#8b949e] mt-0.5">Projects shared with the world</p>
+            </div>
+            <div className="p-3 rounded-xl bg-black/40 border border-cyan-500/20">
+              <span className="text-[11px] font-bold text-cyan-400 uppercase">5. Stack & Tenure</span>
+              <p className="text-xs font-mono font-bold text-white mt-1">4 GP/lang + 3 GP/yr</p>
+              <p className="text-[11px] text-[#8b949e] mt-0.5">Multi-language breadth & experience</p>
             </div>
           </div>
         )}
       </div>
 
-      {/* Category Champions Bento ("Best in a Bunch of Stats") */}
+      {/* Category Champions Bento */}
       <div>
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-sm font-bold uppercase tracking-wider text-[#8b949e] flex items-center gap-2">
             <Crown className="w-4 h-4 text-amber-400" />
-            <span>Reigning Category Champions (#1 in Each Stat)</span>
+            <span>Category Leaders (#1 in Each Stat)</span>
           </h2>
           <span className="text-xs text-[#6e7681] hidden sm:inline">
-            Click any card to view full rankings for that stat
+            Click any card to filter the leaderboard by that stat
           </span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
-          {categories.slice(0, 6).map((cat) => {
+          {categories.map((cat) => {
             const champ = [...enrichedProfiles].sort(
               (a, b) => cat.getValue(b) - cat.getValue(a)
             )[0];
@@ -411,7 +400,7 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
                   </div>
                 </div>
 
-                {/* Highlighted Category Stat + Endless GitPulse Score */}
+                {/* Highlighted Category Stat + GitPulse Score */}
                 <div className="mt-4 p-3 rounded-2xl bg-black/40 border border-white/8 flex items-center justify-between">
                   <div>
                     <span className="text-[10px] uppercase tracking-wider text-[#8b949e] font-bold block">
@@ -482,10 +471,11 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
                 <th className="py-3.5 px-4 w-16">Rank</th>
                 <th className="py-3.5 px-4">Developer</th>
                 <th className="py-3.5 px-4">GitPulse Score</th>
-                <th className="py-3.5 px-4">Originality</th>
-                <th className="py-3.5 px-4">Tenure</th>
-                <th className="py-3.5 px-4">Stack</th>
-                <th className="py-3.5 px-4">Scale</th>
+                <th className="py-3.5 px-4">Total Stars</th>
+                <th className="py-3.5 px-4">Total Commits</th>
+                <th className="py-3.5 px-4">Forks</th>
+                <th className="py-3.5 px-4">Followers</th>
+                <th className="py-3.5 px-4">Repos</th>
                 <th className="py-3.5 px-4 text-right">Actions</th>
               </tr>
             </thead>
@@ -554,23 +544,24 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
                       </span>
                     </td>
 
-                    <td className="py-3.5 px-4 font-mono text-emerald-400 font-bold">
-                      {entry.gp.metrics.originalityPct}%{' '}
-                      <span className="text-[11px] text-[#8b949e] font-normal">
-                        ({entry.gp.metrics.sourceRepos} src)
-                      </span>
+                    <td className="py-3.5 px-4 font-mono text-amber-400 font-bold">
+                      ★ {entry.gp.metrics.totalStars.toLocaleString()}
                     </td>
 
-                    <td className="py-3.5 px-4 font-mono text-purple-300 font-semibold">
-                      {entry.gp.metrics.yearsActive}y+
+                    <td className="py-3.5 px-4 font-mono text-emerald-400 font-bold">
+                      {entry.gp.metrics.totalCommits.toLocaleString()}
                     </td>
 
                     <td className="py-3.5 px-4 font-mono text-[#2997ff] font-semibold">
-                      {entry.gp.metrics.languagesCount} langs
+                      {entry.gp.metrics.totalForks.toLocaleString()}
+                    </td>
+
+                    <td className="py-3.5 px-4 font-mono text-purple-300 font-semibold">
+                      {entry.gp.metrics.followers.toLocaleString()}
                     </td>
 
                     <td className="py-3.5 px-4 font-mono text-cyan-300 font-semibold">
-                      {entry.gp.metrics.totalCodeMb} MB
+                      {entry.gp.metrics.publicRepos.toLocaleString()}
                     </td>
 
                     <td className="py-3.5 px-4 text-right">

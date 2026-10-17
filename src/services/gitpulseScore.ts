@@ -16,122 +16,118 @@ export interface GitPulseScoreResult {
   rankBadgeColor: string;
   breakdown: GitPulseBreakdownItem[];
   metrics: {
-    yearsActive: number;
-    originalityPct: number;
-    languagesCount: number;
-    totalCodeMb: number;
-    publicRepos: number;
-    sourceRepos: number;
     totalStars: number;
-    activeEventsCount: number;
+    totalCommits: number;
+    totalForks: number;
+    followers: number;
+    publicRepos: number;
+    languagesCount: number;
+    yearsActive: number;
   };
 }
 
 /**
- * Computes the GitPulse Score (GP) from 0 upwards
- * using weighted engineering metrics calibrated around real repository output.
+ * Computes the GitPulse Score (GP) from real-world GitHub impact and activity metrics:
+ * Commits/Contributions, Total Stars, Repository Forks, Followers, Public Repos, and Stack/Tenure.
  */
 export function calculateGitPulseScore(summary: UserSummaryData): GitPulseScoreResult {
-  const { user, repos, totalStars, languageStats, sourceReposCount, dayActivity } = summary;
+  const { user, totalStars, totalForks, languageStats, dayActivity, totalContributions } = summary;
 
-  // 1. Original Code & Sources (4 GP per original source repo)
-  const totalRepoCount = Math.max(1, repos.length || user.public_repos || 1);
-  const actualSources = sourceReposCount ?? repos.filter((r) => !r.fork).length;
-  const originalityPct =
-    repos.length > 0 ? Math.round((actualSources / totalRepoCount) * 100) : 100;
-  const originalityPoints = actualSources * 4;
+  // 1. Total Commits & Contributions (~1 GP per 12.5 commits)
+  const fallbackEvents = dayActivity.reduce((acc, d) => acc + d.events, 0);
+  const totalCommits =
+    totalContributions && totalContributions > 0
+      ? totalContributions
+      : Math.max(fallbackEvents * 15, user.public_repos * 25);
+  const commitPoints = Math.round(totalCommits / 12.5);
 
-  // 2. Veteran Tenure (4 GP per year active on GitHub)
+  // 2. Total Stars (World Impact & Open Source Recognition)
+  const starPoints = Math.round(Math.sqrt(totalStars) * 1.4);
+
+  // 3. Global Reach: Forks & Followers
+  const followers = user.followers || 0;
+  const reachPoints = Math.round(
+    Math.sqrt(totalForks) * 1.2 + Math.sqrt(followers) * 1.5
+  );
+
+  // 4. Public Repositories (2 GP per public repository)
+  const repoPoints = user.public_repos * 2;
+
+  // 5. Tech Stack & Tenure (4 GP per language + 3 GP per year on GitHub)
+  const languagesCount = Math.max(1, languageStats.length);
   const yearsActive = Math.max(
     1,
     new Date().getFullYear() - new Date(user.created_at).getFullYear()
   );
-  const tenurePoints = yearsActive * 4;
-
-  // 3. Polyglot Tech Stack Breadth (6 GP per language mastered)
-  const languagesCount = Math.max(1, languageStats.length);
-  const polyglotPoints = languagesCount * 6;
-
-  // 4. Codebase Scale & Volume (1 GP per public repo + 1 GP per 40 MB of code)
-  const totalSizeKb = repos.reduce((acc, repo) => acc + (repo.size || 0), 0);
-  const totalCodeMb = Number((totalSizeKb / 1024).toFixed(1));
-  const codebasePoints = user.public_repos + Math.round(totalCodeMb / 40);
-
-  // 5. Activity & Community Impact (1 GP per 23 recent events + scaled star bonus)
-  const activeEventsCount = dayActivity.reduce((acc, d) => acc + d.events, 0);
-  const starPoints =
-    Math.round(activeEventsCount / 23) + Math.round(Math.sqrt(totalStars) * 1.5);
+  const stackTenurePoints = languagesCount * 4 + yearsActive * 3;
 
   const totalScore =
-    originalityPoints +
-    tenurePoints +
-    polyglotPoints +
-    codebasePoints +
-    starPoints;
+    commitPoints +
+    starPoints +
+    reachPoints +
+    repoPoints +
+    stackTenurePoints;
 
-  let rankTitle = 'Rising Builder';
+  let rankTitle = 'Rising Developer';
   let rankBadgeColor = '#38bdf8';
 
-  if (totalScore >= 500) {
-    rankTitle = 'Open Source Titan';
+  if (totalScore >= 1500) {
+    rankTitle = 'Global Open Source Icon';
     rankBadgeColor = '#f43f5e';
-  } else if (totalScore >= 250) {
-    rankTitle = 'Principal Architect';
+  } else if (totalScore >= 600) {
+    rankTitle = 'Principal Maintainer';
     rankBadgeColor = '#a855f7';
-  } else if (totalScore >= 160) {
-    rankTitle = 'Systems Vanguard';
+  } else if (totalScore >= 250) {
+    rankTitle = 'Senior Impact Engineer';
     rankBadgeColor = '#f59e0b';
   } else if (totalScore >= 110) {
-    rankTitle = 'Full-Stack Engineer';
+    rankTitle = 'Active Software Engineer';
     rankBadgeColor = '#2997ff';
-  } else if (totalScore >= 60) {
-    rankTitle = 'Code Craftsman';
+  } else if (totalScore >= 50) {
+    rankTitle = 'Open Source Builder';
     rankBadgeColor = '#10b981';
   }
 
   const breakdown: GitPulseBreakdownItem[] = [
     {
-      id: 'originality',
-      label: 'Original Sources',
-      points: originalityPoints,
-      weightLabel: '4 GP × Source Repos',
-      rawDisplay: `${actualSources} original repos (${originalityPct}%)`,
+      id: 'commits',
+      label: 'Total Commits',
+      points: commitPoints,
+      weightLabel: '1 GP / 12.5 commits',
+      rawDisplay: `${totalCommits.toLocaleString()} contributions`,
       color: '#10b981',
     },
     {
-      id: 'tenure',
-      label: 'GitHub Tenure',
-      points: tenurePoints,
-      weightLabel: '4 GP × Years Active',
-      rawDisplay: `${yearsActive}y active on GitHub`,
+      id: 'stars',
+      label: 'Total Stars',
+      points: starPoints,
+      weightLabel: 'Star Impact Weight',
+      rawDisplay: `★ ${totalStars.toLocaleString()} stars earned`,
+      color: '#f59e0b',
+    },
+    {
+      id: 'reach',
+      label: 'Forks & Followers',
+      points: reachPoints,
+      weightLabel: 'Global Reach Weight',
+      rawDisplay: `${totalForks.toLocaleString()} forks • ${followers.toLocaleString()} followers`,
       color: '#a855f7',
     },
     {
-      id: 'polyglot',
-      label: 'Polyglot Stack',
-      points: polyglotPoints,
-      weightLabel: '6 GP × Languages',
-      rawDisplay: `${languagesCount} Languages`,
+      id: 'repos',
+      label: 'Public Repositories',
+      points: repoPoints,
+      weightLabel: '2 GP × Public Repos',
+      rawDisplay: `${user.public_repos.toLocaleString()} public repos`,
       color: '#2997ff',
     },
     {
-      id: 'codebase',
-      label: 'Codebase Scale',
-      points: codebasePoints,
-      weightLabel: '1 GP/repo + 1 GP/40MB',
-      rawDisplay: `${user.public_repos} repos (${totalCodeMb} MB)`,
+      id: 'stack',
+      label: 'Stack & Experience',
+      points: stackTenurePoints,
+      weightLabel: '4 GP/lang + 3 GP/yr',
+      rawDisplay: `${languagesCount} languages • ${yearsActive}y active`,
       color: '#38bdf8',
-    },
-    {
-      id: 'impact',
-      label: 'Activity & Stars',
-      points: starPoints,
-      weightLabel: 'Events + Star Impact',
-      rawDisplay:
-        totalStars > 0
-          ? `★ ${totalStars.toLocaleString()} • ${activeEventsCount} events`
-          : `${activeEventsCount} active events`,
-      color: '#f59e0b',
     },
   ];
 
@@ -141,14 +137,13 @@ export function calculateGitPulseScore(summary: UserSummaryData): GitPulseScoreR
     rankBadgeColor,
     breakdown,
     metrics: {
-      yearsActive,
-      originalityPct,
-      languagesCount,
-      totalCodeMb,
-      publicRepos: user.public_repos,
-      sourceRepos: actualSources,
       totalStars,
-      activeEventsCount,
+      totalCommits,
+      totalForks,
+      followers,
+      publicRepos: user.public_repos,
+      languagesCount,
+      yearsActive,
     },
   };
 }
