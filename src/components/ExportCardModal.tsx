@@ -1,7 +1,8 @@
 import React, { useRef, useState } from 'react';
-import { X, Download, Copy, Check, Sparkles, Star, Calendar, BookOpen } from 'lucide-react';
+import { X, Download, Copy, Check, Sparkles, Star, Calendar, BookOpen, Trophy } from 'lucide-react';
 import { toPng } from 'html-to-image';
 import type { UserSummaryData } from '../types/github';
+import { calculateGitPulseScore } from '../services/gitpulseScore';
 
 interface ExportCardModalProps {
   isOpen: boolean;
@@ -21,6 +22,7 @@ export const ExportCardModal: React.FC<ExportCardModalProps> = ({
   if (!isOpen) return null;
 
   const { user, totalStars, languageStats } = summary;
+  const gp = calculateGitPulseScore(summary);
 
   const handleDownload = async () => {
     if (!cardRef.current) return;
@@ -85,8 +87,21 @@ export const ExportCardModal: React.FC<ExportCardModalProps> = ({
             <div className="absolute bottom-0 left-0 w-40 h-40 bg-purple-500/15 rounded-full blur-2xl pointer-events-none" />
 
             {/* Card Header Branding */}
-            <div className="flex items-center justify-end mb-3 opacity-60">
-              <span className="text-[10px] font-mono text-[#8b949e]">GitPulse Analytics</span>
+            <div className="flex items-center justify-between mb-3">
+              <span
+                className="text-[10px] font-semibold px-2 py-0.5 rounded-full border"
+                style={{
+                  backgroundColor: `${gp.rankBadgeColor}20`,
+                  color: gp.rankBadgeColor,
+                  borderColor: `${gp.rankBadgeColor}40`,
+                }}
+              >
+                {gp.rankTitle}
+              </span>
+              <span className="text-[10px] font-mono text-[#2997ff] font-bold flex items-center gap-1">
+                <Trophy className="w-3 h-3 text-amber-400" />
+                {gp.totalScore.toLocaleString()} GP
+              </span>
             </div>
 
             {/* Card Header */}
