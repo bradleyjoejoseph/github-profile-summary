@@ -13,6 +13,7 @@ import {
   Zap,
   Flame,
   Crown,
+  UserPlus,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { fetchUserSummary } from '../services/githubApi';
@@ -47,56 +48,80 @@ export const CompareModal: React.FC<CompareModalProps> = ({
   currentUser,
   initialOpponentLogin,
 }) => {
-  const [targetUsername, setTargetUsername] = useState(initialOpponentLogin || 'shadcn');
+  const [targetUsername, setTargetUsername] = useState('');
   const [comparedUser, setComparedUser] = useState<UserSummaryData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Controls the sequential slide-down battle animation (0..7)
+  // revealedRounds: which round card has slid down (1..7)
+  // settledRounds: which round has finished tugging from 50% center to the winner (1..6)
   const [revealedRounds, setRevealedRounds] = useState(0);
-  const [tugEngaged, setTugEngaged] = useState(false);
+  const [settledRounds, setSettledRounds] = useState(0);
   const [battleNonce, setBattleNonce] = useState(0);
 
-  // Load initial challenger when modal opens or initialOpponentLogin changes
+  // When modal opens: only auto-start if initialOpponentLogin was explicitly passed from Leaderboard
   useEffect(() => {
     if (!isOpen) return;
-    const desiredLogin = (initialOpponentLogin || targetUsername || 'shadcn').trim();
-    setTargetUsername(desiredLogin);
-    startChallenge(desiredLogin);
+    setError(null);
+
+    if (initialOpponentLogin && initialOpponentLogin.trim()) {
+      const clean = initialOpponentLogin.trim();
+      setTargetUsername(clean);
+      startChallenge(clean);
+    } else {
+      // Let user type someone's name first before starting the Versus battle
+      setTargetUsername('');
+      setComparedUser(null);
+      setRevealedRounds(0);
+      setSettledRounds(0);
+    }
   }, [isOpen, initialOpponentLogin]);
 
-  // Sequential slide-down timer for each battle round
+  // Paced sequential slide-down + tug-of-war pull animation for each battle round
   useEffect(() => {
     if (!isOpen || !comparedUser) return;
 
     setRevealedRounds(0);
-    setTugEngaged(false);
+    setSettledRounds(0);
 
-    const engageTimer = setTimeout(() => {
-      setTugEngaged(true);
-    }, 120);
+    const timers: Array<ReturnType<typeof setTimeout>> = [];
 
-    const interval = setInterval(() => {
-      setRevealedRounds((prev) => {
-        if (prev >= 7) {
-          clearInterval(interval);
-          return 7;
-        }
-        const next = prev + 1;
-        if (next === 7) {
-          confetti({
-            particleCount: 75,
-            spread: 68,
-            origin: { y: 0.65 },
-          });
-        }
-        return next;
-      });
-    }, 390);
+    // 6 stat rounds, spaced 1,250ms apart so user can watch each round slide down and tug
+    const ROUND_STEP_MS = 1250;
+    const TUG_DELAY_MS = 420;
+
+    for (let r = 1; r <= 6; r++) {
+      const revealTime = (r - 1) * ROUND_STEP_MS + 180;
+      const settleTime = revealTime + TUG_DELAY_MS;
+
+      timers.push(
+        setTimeout(() => {
+          setRevealedRounds(r);
+        }, revealTime)
+      );
+
+      timers.push(
+        setTimeout(() => {
+          setSettledRounds(r);
+        }, settleTime)
+      );
+    }
+
+    // Final verdict banner after all 6 rounds have slid down and tugged
+    const finalVerdictTime = 6 * ROUND_STEP_MS + 350;
+    timers.push(
+      setTimeout(() => {
+        setRevealedRounds(7);
+        confetti({
+          particleCount: 80,
+          spread: 70,
+          origin: { y: 0.65 },
+        });
+      }, finalVerdictTime)
+    );
 
     return () => {
-      clearTimeout(engageTimer);
-      clearInterval(interval);
+      timers.forEach((t) => clearTimeout(t));
     };
   }, [isOpen, comparedUser, battleNonce]);
 
@@ -105,25 +130,23 @@ export const CompareModal: React.FC<CompareModalProps> = ({
     if (!clean) return;
 
     setError(null);
-
-    // Check if challenger is in preloaded roster for instant 0ms response
-    const preset = INITIAL_LEADERBOARD_PROFILES.find(
-      (p) => p.user.login.toLowerCase() === clean
-    );
-
-    if (preset) {
-      setComparedUser(preset);
-      setBattleNonce((n) => n + 1);
-      return;
-    }
-
     setIsLoading(true);
+
     try {
       const data = await fetchUserSummary(clean);
       setComparedUser(data);
       setBattleNonce((n) => n + 1);
     } catch (err: any) {
-      setError(err.message || 'Could not load challenger from GitHub.');
+      // Fallback to preset if rate-limited and user is in our known roster
+      const preset = INITIAL_LEADERBOARD_PROFILES.find(
+        (p) => p.user.login.toLowerCase() === clean
+      );
+      if (preset) {
+        setComparedUser(preset);
+        setBattleNonce((n) => n + 1);
+      } else {
+        setError(err.message || `Could not find GitHub user "${usernameToFetch}".`);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -131,6 +154,7 @@ export const CompareModal: React.FC<CompareModalProps> = ({
 
   const handleCompareSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!targetUsername.trim()) return;
     startChallenge(targetUsername);
   };
 
@@ -138,11 +162,27 @@ export const CompareModal: React.FC<CompareModalProps> = ({
     setBattleNonce((n) => n + 1);
   };
 
+  const handleResetChallenger = () => {
+    setComparedUser(null);
+    setRevealedRounds(0);
+    setSettledRounds(0);
+    setTargetUsername('');
+    setError(null);
+  };
+
   const gpA = calculateGitPulseScore(currentUser);
   const gpB = comparedUser ? calculateGitPulseScore(comparedUser) : null;
 
-  const animatedGpA = useCountUpFromZero(gpA.totalScore, 1400, `${currentUser.user.login}-${battleNonce}`);
-  const animatedGpB = useCountUpFromZero(gpB?.totalScore || 0, 1400, `${comparedUser?.user.login}-${battleNonce}`);
+  const animatedGpA = useCountUpFromZero(
+    gpA.totalScore,
+    1400,
+    `${currentUser.user.login}-${battleNonce}`
+  );
+  const animatedGpB = useCountUpFromZero(
+    gpB?.totalScore || 0,
+    1400,
+    `${comparedUser?.user.login || 'none'}-${battleNonce}`
+  );
 
   if (!isOpen) return null;
 
@@ -221,11 +261,11 @@ export const CompareModal: React.FC<CompareModalProps> = ({
         ]
       : [];
 
-  // Calculate live round wins based on revealed rounds so far
-  const visibleRounds = rounds.slice(0, Math.min(revealedRounds, 6));
+  // Calculate live round wins based on settled rounds so far
+  const settledRoundsList = rounds.slice(0, Math.min(settledRounds, 6));
   let winsA = 0;
   let winsB = 0;
-  visibleRounds.forEach((r) => {
+  settledRoundsList.forEach((r) => {
     if (r.valA > r.valB) winsA += 1;
     else if (r.valB > r.valA) winsB += 1;
     else {
@@ -259,58 +299,68 @@ export const CompareModal: React.FC<CompareModalProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-lg sm:text-xl font-extrabold tracking-tight text-white">
-                  Versus Tug-of-War Arena
+                  GitPulse Versus Arena
                 </h2>
                 <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-[#2997ff]/15 text-[#2997ff] border border-[#2997ff]/30 font-bold">
-                  6-Round Clash
+                  6-Round Tug-of-War
                 </span>
               </div>
               <p className="text-xs text-[#8b949e]">
-                Stats slide down round-by-round and pull the Tug-of-War power bar
+                Enter a GitHub username below to start the round-by-round Tug-of-War battle
               </p>
             </div>
           </div>
 
           {userB && (
-            <button
-              onClick={handleReplayBattle}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white/5 hover:bg-white/10 border border-white/10 text-white transition-all active:scale-95 cursor-pointer"
-              title="Replay Slide-Down Battle Animation"
-            >
-              <RotateCcw className="w-3.5 h-3.5 text-[#2997ff]" />
-              <span>Replay Fight</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleResetChallenger}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-white/5 hover:bg-white/10 border border-white/10 text-[#8b949e] hover:text-white transition-all cursor-pointer"
+              >
+                <UserPlus className="w-3.5 h-3.5" />
+                <span>New Challenger</span>
+              </button>
+              <button
+                onClick={handleReplayBattle}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white/5 hover:bg-white/10 border border-white/10 text-white transition-all active:scale-95 cursor-pointer"
+                title="Replay Slide-Down Battle Animation"
+              >
+                <RotateCcw className="w-3.5 h-3.5 text-[#2997ff]" />
+                <span>Replay Fight</span>
+              </button>
+            </div>
           )}
         </div>
 
         {/* Challenger Input + Quick Presets */}
-        <div className="mt-4 p-3.5 rounded-2xl bg-black/40 border border-white/8">
+        <div className="mt-4 p-4 rounded-2xl bg-black/40 border border-white/8">
           <form onSubmit={handleCompareSubmit} className="flex gap-2">
             <input
               type="text"
+              autoFocus
               value={targetUsername}
               onChange={(e) => setTargetUsername(e.target.value)}
-              placeholder="Enter challenger GitHub username (e.g. shadcn, torvalds)..."
-              className="flex-1 py-2 px-3.5 rounded-xl bg-[#0d1117] border border-white/10 text-xs sm:text-sm text-white placeholder-[#6e7681] focus:outline-hidden focus:border-[#2997ff]"
+              placeholder={`Type a GitHub username to battle @${userA.user.login}...`}
+              className="flex-1 py-2.5 px-4 rounded-xl bg-[#0d1117] border border-white/12 text-xs sm:text-sm text-white placeholder-[#6e7681] focus:outline-hidden focus:border-[#2997ff]"
             />
             <button
               type="submit"
               disabled={isLoading || !targetUsername.trim()}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl font-bold text-xs bg-gradient-to-r from-[#2997ff] to-purple-600 hover:from-[#3ea3ff] hover:to-purple-500 disabled:opacity-50 text-white shadow-md transition-all active:scale-95 cursor-pointer"
+              className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-gradient-to-r from-[#2997ff] to-purple-600 hover:from-[#3ea3ff] hover:to-purple-500 disabled:opacity-50 text-white shadow-md transition-all active:scale-95 cursor-pointer"
             >
               {isLoading ? (
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
-                <Swords className="w-3.5 h-3.5" />
+                <Swords className="w-4 h-4" />
               )}
-              <span>Fight!</span>
+              <span>Start Battle</span>
             </button>
           </form>
 
           {/* Quick Opponent Pills */}
-          <div className="mt-2.5 flex items-center gap-1.5 flex-wrap">
+          <div className="mt-3 flex items-center gap-1.5 flex-wrap">
             <span className="text-[10px] font-semibold uppercase tracking-wider text-[#6e7681] mr-1">
-              Quick Challengers:
+              Or Quick Pick:
             </span>
             {QUICK_CHALLENGERS.filter(
               (c) => c.toLowerCase() !== userA.user.login.toLowerCase()
@@ -344,7 +394,7 @@ export const CompareModal: React.FC<CompareModalProps> = ({
           </div>
         )}
 
-        {/* Battle Arena */}
+        {/* Battle Arena OR Pre-Battle Challenger Lobby */}
         {userB && gpB ? (
           <div className="mt-5 space-y-4">
             {/* Fighter Corner Cards + Master Tug-of-War Power Bar */}
@@ -358,7 +408,7 @@ export const CompareModal: React.FC<CompareModalProps> = ({
                       alt={userA.user.login}
                       className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl border-2 border-[#2997ff] object-cover shadow-lg shadow-blue-500/20"
                     />
-                    {revealedRounds >= 6 && winsA > winsB && (
+                    {settledRounds >= 6 && winsA > winsB && (
                       <span className="absolute -top-2 -left-2 w-6 h-6 rounded-full bg-amber-400 text-black flex items-center justify-center shadow-md">
                         <Crown className="w-3.5 h-3.5" />
                       </span>
@@ -377,12 +427,13 @@ export const CompareModal: React.FC<CompareModalProps> = ({
                       @{userA.user.login}
                     </p>
                     <p className="text-xs font-mono font-extrabold text-white mt-0.5">
-                      {animatedGpA.toLocaleString()} <span className="text-[10px] text-[#2997ff]">GP</span>
+                      {animatedGpA.toLocaleString()}{' '}
+                      <span className="text-[10px] text-[#2997ff]">GP</span>
                     </p>
                   </div>
                 </div>
 
-                {/* Fighter 2 (Purple/Red Corner) */}
+                {/* Fighter 2 (Purple Corner) */}
                 <div className="flex items-center justify-end gap-3 text-right">
                   <div className="min-w-0">
                     <div className="flex items-center justify-end gap-1.5">
@@ -397,7 +448,8 @@ export const CompareModal: React.FC<CompareModalProps> = ({
                       @{userB.user.login}
                     </p>
                     <p className="text-xs font-mono font-extrabold text-white mt-0.5">
-                      {animatedGpB.toLocaleString()} <span className="text-[10px] text-purple-400">GP</span>
+                      {animatedGpB.toLocaleString()}{' '}
+                      <span className="text-[10px] text-purple-400">GP</span>
                     </p>
                   </div>
                   <div className="relative shrink-0">
@@ -406,7 +458,7 @@ export const CompareModal: React.FC<CompareModalProps> = ({
                       alt={userB.user.login}
                       className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl border-2 border-purple-500 object-cover shadow-lg shadow-purple-500/20"
                     />
-                    {revealedRounds >= 6 && winsB > winsA && (
+                    {settledRounds >= 6 && winsB > winsA && (
                       <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-amber-400 text-black flex items-center justify-center shadow-md">
                         <Crown className="w-3.5 h-3.5" />
                       </span>
@@ -422,7 +474,9 @@ export const CompareModal: React.FC<CompareModalProps> = ({
                     <Flame className="w-3.5 h-3.5" /> {winsA} Rounds Won
                   </span>
                   <span className="text-[10px] uppercase tracking-widest text-[#8b949e] font-sans font-bold">
-                    Master Tug-of-War
+                    {settledRounds < 6
+                      ? `Round ${Math.min(6, revealedRounds || 1)} of 6 Fighting...`
+                      : 'Master Tug-of-War'}
                   </span>
                   <span className="text-purple-400 flex items-center gap-1">
                     {winsB} Rounds Won <Flame className="w-3.5 h-3.5" />
@@ -432,17 +486,17 @@ export const CompareModal: React.FC<CompareModalProps> = ({
                 <div className="relative h-4 w-full rounded-full bg-black/70 p-0.5 border border-white/10 overflow-visible flex items-center">
                   <div className="w-full h-full rounded-full overflow-hidden flex">
                     <div
-                      className="h-full bg-gradient-to-r from-[#0071e3] to-[#2997ff] transition-all duration-500 ease-out"
+                      className="h-full bg-gradient-to-r from-[#0071e3] to-[#2997ff] transition-all duration-1000 ease-out"
                       style={{ width: `${masterTugPctA}%` }}
                     />
                     <div
-                      className="h-full bg-gradient-to-l from-purple-700 to-purple-500 transition-all duration-500 ease-out"
+                      className="h-full bg-gradient-to-l from-purple-700 to-purple-500 transition-all duration-1000 ease-out"
                       style={{ width: `${100 - masterTugPctA}%` }}
                     />
                   </div>
                   {/* Center Knot / Clash Spark */}
                   <div
-                    className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-[#161b22] border-2 border-amber-400 flex items-center justify-center shadow-lg shadow-amber-500/40 transition-all duration-500 ease-out z-10 clash-spark"
+                    className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-[#161b22] border-2 border-amber-400 flex items-center justify-center shadow-lg shadow-amber-500/40 transition-all duration-1000 ease-out z-10 clash-spark"
                     style={{ left: `${masterTugPctA}%` }}
                   >
                     <Zap className="w-3 h-3 text-amber-400" />
@@ -457,9 +511,11 @@ export const CompareModal: React.FC<CompareModalProps> = ({
                 const isRevealed = revealedRounds >= round.roundNumber;
                 if (!isRevealed) return null;
 
+                const isSettled = settledRounds >= round.roundNumber;
+
                 const total = round.valA + round.valB;
                 const rawPctA = total === 0 ? 50 : (round.valA / total) * 100;
-                const clampedPctA = tugEngaged
+                const clampedPctA = isSettled
                   ? Math.min(88, Math.max(12, rawPctA))
                   : 50;
 
@@ -480,13 +536,15 @@ export const CompareModal: React.FC<CompareModalProps> = ({
                       {/* Left Fighter Stat */}
                       <div className="flex items-center gap-2 min-w-0">
                         <span
-                          className={`text-xs sm:text-sm font-mono font-bold ${
-                            winner === 'A' ? 'text-[#2997ff]' : 'text-[#8b949e]'
+                          className={`text-xs sm:text-sm font-mono font-bold transition-colors duration-500 ${
+                            isSettled && winner === 'A'
+                              ? 'text-[#2997ff]'
+                              : 'text-[#8b949e]'
                           }`}
                         >
                           {round.displayA}
                         </span>
-                        {winner === 'A' && (
+                        {isSettled && winner === 'A' && (
                           <span className="px-1.5 py-0.5 rounded-md text-[9px] font-extrabold uppercase bg-[#2997ff]/20 text-[#2997ff] border border-[#2997ff]/30">
                             WIN +1
                           </span>
@@ -506,14 +564,16 @@ export const CompareModal: React.FC<CompareModalProps> = ({
 
                       {/* Right Fighter Stat */}
                       <div className="flex items-center justify-end gap-2 min-w-0">
-                        {winner === 'B' && (
+                        {isSettled && winner === 'B' && (
                           <span className="px-1.5 py-0.5 rounded-md text-[9px] font-extrabold uppercase bg-purple-500/20 text-purple-300 border border-purple-500/30">
                             WIN +1
                           </span>
                         )}
                         <span
-                          className={`text-xs sm:text-sm font-mono font-bold ${
-                            winner === 'B' ? 'text-purple-400' : 'text-[#8b949e]'
+                          className={`text-xs sm:text-sm font-mono font-bold transition-colors duration-500 ${
+                            isSettled && winner === 'B'
+                              ? 'text-purple-400'
+                              : 'text-[#8b949e]'
                           }`}
                         >
                           {round.displayB}
@@ -525,18 +585,18 @@ export const CompareModal: React.FC<CompareModalProps> = ({
                     <div className="relative h-2.5 w-full bg-black/60 rounded-full flex items-center">
                       <div className="w-full h-full rounded-full overflow-hidden flex">
                         <div
-                          className="h-full bg-gradient-to-r from-[#0071e3] to-[#2997ff] transition-all duration-700 ease-out"
+                          className="h-full bg-gradient-to-r from-[#0071e3] to-[#2997ff] transition-all duration-900 ease-out"
                           style={{ width: `${clampedPctA}%` }}
                         />
                         <div
-                          className="h-full bg-gradient-to-l from-purple-700 to-purple-500 transition-all duration-700 ease-out"
+                          className="h-full bg-gradient-to-l from-purple-700 to-purple-500 transition-all duration-900 ease-out"
                           style={{ width: `${100 - clampedPctA}%` }}
                         />
                       </div>
 
                       {/* Tug Point Divider Marker */}
                       <div
-                        className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3.5 h-3.5 rounded-full bg-white border-2 border-[#161b22] shadow-md transition-all duration-700 ease-out"
+                        className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3.5 h-3.5 rounded-full bg-white border-2 border-[#161b22] shadow-md transition-all duration-900 ease-out"
                         style={{ left: `${clampedPctA}%` }}
                       />
                     </div>
@@ -570,14 +630,56 @@ export const CompareModal: React.FC<CompareModalProps> = ({
                   onClick={handleReplayBattle}
                   className="px-3.5 py-2 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/15 text-white border border-white/15 transition-all cursor-pointer shrink-0"
                 >
-                  Replay Slide-Down
+                  Replay Fight
                 </button>
               </div>
             )}
           </div>
         ) : (
-          <div className="mt-8 py-12 text-center text-[#8b949e] text-xs">
-            Select a challenger above to begin the Tug-of-War battle.
+          /* Pre-Battle Challenger Selection Lobby */
+          <div className="mt-5 p-8 rounded-2xl bg-gradient-to-b from-white/[0.03] to-black/40 border border-white/8 text-center">
+            <div className="flex items-center justify-center gap-6 mb-5">
+              {/* Fighter 1 Ready */}
+              <div className="flex flex-col items-center">
+                <img
+                  src={userA.user.avatar_url}
+                  alt={userA.user.login}
+                  className="w-16 h-16 rounded-2xl border-2 border-[#2997ff] object-cover shadow-lg shadow-blue-500/20"
+                />
+                <span className="mt-2 text-xs font-bold text-white">
+                  {userA.user.name || userA.user.login}
+                </span>
+                <span className="text-[11px] font-mono text-[#2997ff]">
+                  @{userA.user.login} ({gpA.totalScore} GP)
+                </span>
+              </div>
+
+              <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-amber-400 font-extrabold text-xs">
+                VS
+              </div>
+
+              {/* Challenger Slot Waiting */}
+              <div className="flex flex-col items-center">
+                <div className="w-16 h-16 rounded-2xl border-2 border-dashed border-purple-500/50 bg-purple-500/10 flex items-center justify-center text-purple-400">
+                  {isLoading ? (
+                    <Loader2 className="w-6 h-6 animate-spin" />
+                  ) : (
+                    <UserPlus className="w-6 h-6" />
+                  )}
+                </div>
+                <span className="mt-2 text-xs font-bold text-purple-300">
+                  {isLoading ? 'Loading Challenger...' : 'Awaiting Challenger'}
+                </span>
+                <span className="text-[11px] font-mono text-[#8b949e]">
+                  Type username above
+                </span>
+              </div>
+            </div>
+
+            <p className="text-xs text-[#8b949e] max-w-md mx-auto">
+              Type any GitHub username in the box above and press{' '}
+              <span className="text-white font-semibold">Start Battle</span> to watch both profiles clash round-by-round in a live Tug-of-War.
+            </p>
           </div>
         )}
       </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTheme } from './hooks/useTheme';
 import { Navbar, type ActivePage } from './components/Navbar';
 import { SearchBar } from './components/SearchBar';
@@ -12,11 +12,36 @@ import { LeaderboardPage } from './components/LeaderboardPage';
 import { CompareModal } from './components/CompareModal';
 import { ExportCardModal } from './components/ExportCardModal';
 import { Footer } from './components/Footer';
-import { fetchUserSummary } from './services/githubApi';
+import { fetchUserSummary, syncLeaderboardEntries } from './services/githubApi';
 import { BRADLEY_DEMO_DATA } from './services/mockData';
 import { INITIAL_LEADERBOARD_PROFILES } from './services/leaderboardData';
 import type { UserSummaryData } from './types/github';
 import { AlertCircle, Sparkles } from 'lucide-react';
+
+const LEADERBOARD_STORAGE_KEY = 'gitpulse_leaderboard_roster_v2';
+
+function loadInitialLeaderboard(): UserSummaryData[] {
+  try {
+    const raw = localStorage.getItem(LEADERBOARD_STORAGE_KEY);
+    if (!raw) return INITIAL_LEADERBOARD_PROFILES;
+    const saved = JSON.parse(raw) as UserSummaryData[];
+    if (!Array.isArray(saved) || saved.length === 0) return INITIAL_LEADERBOARD_PROFILES;
+
+    // Merge saved profiles with initial roster so default contenders are always present
+    const map = new Map<string, UserSummaryData>();
+    for (const p of INITIAL_LEADERBOARD_PROFILES) {
+      map.set(p.user.login.toLowerCase(), p);
+    }
+    for (const p of saved) {
+      if (p?.user?.login) {
+        map.set(p.user.login.toLowerCase(), p);
+      }
+    }
+    return Array.from(map.values());
+  } catch {
+    return INITIAL_LEADERBOARD_PROFILES;
+  }
+}
 
 export function App() {
   const { theme, setTheme } = useTheme();
@@ -41,10 +66,23 @@ export function App() {
 
   // Leaderboard profiles state
   const [leaderboardProfiles, setLeaderboardProfiles] = useState<UserSummaryData[]>(
-    INITIAL_LEADERBOARD_PROFILES
+    loadInitialLeaderboard
   );
   const [isAddingToLeaderboard, setIsAddingToLeaderboard] = useState(false);
   const [leaderboardAddError, setLeaderboardAddError] = useState<string | null>(null);
+  const [isSyncingLeaderboard, setIsSyncingLeaderboard] = useState(false);
+  const [lastLeaderboardSync, setLastLeaderboardSync] = useState<number | null>(null);
+  const leaderboardRef = useRef(leaderboardProfiles);
+  leaderboardRef.current = leaderboardProfiles;
+
+  // Persist leaderboard roster changes to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem(LEADERBOARD_STORAGE_KEY, JSON.stringify(leaderboardProfiles));
+    } catch {
+      // Ignore storage quota errors
+    }
+  }, [leaderboardProfiles]);
 
   // Modals state
   const [isCompareModalOpen, setIsCompareModalOpen] = useState(false);
@@ -65,6 +103,19 @@ export function App() {
     });
   }, []);
 
+  const handleSyncLeaderboard = useCallback(async (bypassCache = false) => {
+    setIsSyncingLeaderboard(true);
+    try {
+      const refreshed = await syncLeaderboardEntries(leaderboardRef.current, bypassCache);
+      setLeaderboardProfiles(refreshed);
+      setLastLeaderboardSync(Date.now());
+    } catch (err) {
+      console.warn('Leaderboard background sync warning:', err);
+    } finally {
+      setIsSyncingLeaderboard(false);
+    }
+  }, []);
+
   const loadUserData = useCallback(
     async (targetUser: string, bypassCache = false) => {
       setIsLoading(true);
@@ -81,6 +132,7 @@ export function App() {
         setSummary(data);
         setUsername(targetUser);
         upsertIntoLeaderboard(data);
+        setLastLeaderboardSync(Date.now());
       } catch (err: any) {
         console.error('Fetch error:', err);
         const errMsg = err.message || 'Failed to fetch GitPulse developer profile.';
@@ -108,8 +160,16 @@ export function App() {
     [upsertIntoLeaderboard]
   );
 
+  // Initial profile fetch + automatic live leaderboard sync every 5 minutes
   useEffect(() => {
     loadUserData(username);
+    handleSyncLeaderboard(false);
+
+    const intervalId = window.setInterval(() => {
+      handleSyncLeaderboard(false);
+    }, 5 * 60 * 1000);
+
+    return () => window.clearInterval(intervalId);
   }, []);
 
   const handleChangePage = (page: ActivePage) => {
@@ -147,8 +207,9 @@ export function App() {
     setIsAddingToLeaderboard(true);
     setLeaderboardAddError(null);
     try {
-      const data = await fetchUserSummary(userToAdd.trim());
+      const data = await fetchUserSummary(userToAdd.trim(), true);
       upsertIntoLeaderboard(data);
+      setLastLeaderboardSync(Date.now());
     } catch (err: any) {
       setLeaderboardAddError(err.message || `Could not find GitHub user "${userToAdd}".`);
     } finally {
@@ -186,6 +247,9 @@ export function App() {
               loadUserData(selectedLogin);
             }}
             onBattleUser={handleBattleUser}
+            onSyncLeaderboard={() => handleSyncLeaderboard(true)}
+            isSyncing={isSyncingLeaderboard}
+            lastSyncedAt={lastLeaderboardSync}
             isAddingUser={isAddingToLeaderboard}
             addError={leaderboardAddError}
           />

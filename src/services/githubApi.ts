@@ -12,7 +12,7 @@ import { getLanguageColor } from './languageColors';
 
 const TOKEN_STORAGE_KEY = 'gitpulse_gh_token';
 const CACHE_PREFIX = 'gitpulse_cache_v2_';
-const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes live cache TTL
 
 export function getStoredToken(): string | null {
   return localStorage.getItem(TOKEN_STORAGE_KEY);
@@ -272,3 +272,80 @@ export async function fetchUserSummary(
 
   return result;
 }
+
+/**
+ * Syncs all leaderboard entries with live GitHub API and Contributions API data.
+ * Uses full cached summary when fresh, or performs a fast parallel live update.
+ */
+export async function syncLeaderboardEntries(
+  profiles: UserSummaryData[],
+  bypassCache = false
+): Promise<UserSummaryData[]> {
+  const updated = await Promise.all(
+    profiles.map(async (entry) => {
+      const cleanLogin = entry.user.login.trim().toLowerCase();
+      const cacheKey = `${CACHE_PREFIX}${cleanLogin}`;
+
+      // 1. Check if we already have a fresh full summary in localStorage
+      if (!bypassCache) {
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) {
+          try {
+            const parsed: UserSummaryData = JSON.parse(cached);
+            if (parsed.cachedAt && Date.now() - parsed.cachedAt < CACHE_TTL_MS) {
+              return parsed;
+            }
+          } catch {
+            // ignore invalid cache
+          }
+        }
+      }
+
+      // 2. Fetch live contributions (0 GitHub rate limit cost) + live GitHub user profile in parallel
+      let liveContributions = entry.totalContributions || 0;
+      let liveUser = entry.user;
+
+      await Promise.all([
+        (async () => {
+          try {
+            const contribRes = await fetch(
+              `https://github-contributions-api.jogruber.de/v4/${cleanLogin}`
+            );
+            if (contribRes.ok) {
+              const contribData = await contribRes.json();
+              if (contribData?.total && typeof contribData.total === 'object') {
+                const sum = Object.values(contribData.total as Record<string, number>).reduce(
+                  (acc, val) => acc + (Number(val) || 0),
+                  0
+                );
+                if (sum > 0) liveContributions = sum;
+              }
+            }
+          } catch {
+            // keep existing contributions on network error
+          }
+        })(),
+        (async () => {
+          try {
+            const userRes = await fetchWithAuth(`https://api.github.com/users/${cleanLogin}`);
+            if (userRes.ok) {
+              liveUser = await userRes.json();
+            }
+          } catch {
+            // keep existing user object if rate-limited
+          }
+        })(),
+      ]);
+
+      return {
+        ...entry,
+        user: liveUser,
+        totalContributions: liveContributions,
+        cachedAt: Date.now(),
+      };
+    })
+  );
+
+  return updated;
+}
+

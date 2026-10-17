@@ -13,6 +13,7 @@ import {
   ArrowUpRight,
   Zap,
   Info,
+  RefreshCw,
 } from 'lucide-react';
 import type { UserSummaryData } from '../types/github';
 import { calculateGitPulseScore, useCountUpFromZero } from '../services/gitpulseScore';
@@ -47,6 +48,9 @@ interface LeaderboardPageProps {
   onAddProfile: (username: string) => Promise<void>;
   onSelectProfile: (username: string) => void;
   onBattleUser: (opponentUsername: string) => void;
+  onSyncLeaderboard?: () => void;
+  isSyncing?: boolean;
+  lastSyncedAt?: number | null;
   isAddingUser: boolean;
   addError: string | null;
 }
@@ -62,6 +66,9 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
   onAddProfile,
   onSelectProfile,
   onBattleUser,
+  onSyncLeaderboard,
+  isSyncing = false,
+  lastSyncedAt = null,
   isAddingUser,
   addError,
 }) => {
@@ -164,9 +171,22 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
 
         <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-bold mb-3">
-              <Trophy className="w-3.5 h-3.5 text-amber-400" />
-              <span>Global Developer Impact & Stat Leaderboards</span>
+            <div className="flex flex-wrap items-center gap-2 mb-3">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-bold">
+                <Trophy className="w-3.5 h-3.5 text-amber-400" />
+                <span>Global Developer Impact & Stat Leaderboards</span>
+              </div>
+
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-300 text-[11px] font-medium">
+                <span className={`w-1.5 h-1.5 rounded-full bg-emerald-400 ${isSyncing ? 'animate-ping' : ''}`} />
+                <span>
+                  {isSyncing
+                    ? 'Syncing live GitHub stats...'
+                    : lastSyncedAt
+                    ? `Live API • Updated ${new Date(lastSyncedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`
+                    : 'Live API Sync Active'}
+                </span>
+              </div>
             </div>
             <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">
               GitPulse Leaderboards
@@ -203,8 +223,22 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
             {addError && (
               <p className="text-xs text-red-400 mt-1.5">{addError}</p>
             )}
-            <div className="mt-2 flex items-center justify-between text-[11px] text-[#8b949e]">
-              <span>Ranked Roster: {enrichedProfiles.length} Developers</span>
+            <div className="mt-2.5 flex items-center justify-between gap-3 text-[11px] text-[#8b949e]">
+              <div className="flex items-center gap-2.5">
+                <span>Ranked Roster: {enrichedProfiles.length} Developers</span>
+                {onSyncLeaderboard && (
+                  <button
+                    type="button"
+                    onClick={onSyncLeaderboard}
+                    disabled={isSyncing}
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/5 hover:bg-white/10 text-white border border-white/10 transition-colors cursor-pointer disabled:opacity-50"
+                    title="Fetch fresh live commits, stars, forks, followers & repos for all leaderboard contenders"
+                  >
+                    <RefreshCw className={`w-3 h-3 text-[#2997ff] ${isSyncing ? 'animate-spin' : ''}`} />
+                    <span>{isSyncing ? 'Syncing...' : 'Sync Live'}</span>
+                  </button>
+                )}
+              </div>
               <button
                 type="button"
                 onClick={() => setShowFormulaModal(!showFormulaModal)}
