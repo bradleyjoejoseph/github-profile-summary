@@ -93,17 +93,37 @@ function makeDeveloperSummary(params: {
   };
 }
 
-// Upgraded Bradley profile with 100% Originality & full polyglot stack representation
 export const BRADLEY_LEADERBOARD_PROFILE: UserSummaryData = {
   ...BRADLEY_DEMO_DATA,
-  sourceReposCount: 13,
-  forkedReposCount: 0,
+  user: {
+    ...BRADLEY_DEMO_DATA.user,
+    public_repos: 16,
+  },
+  repos: [
+    ...BRADLEY_DEMO_DATA.repos.map((r, i) => ({
+      ...r,
+      stargazers_count: 0,
+      size: i === 0 ? 336900 : r.size,
+    })),
+  ],
+  totalStars: 0,
+  sourceReposCount: 11,
+  forkedReposCount: 5,
+  dayActivity: [
+    { day: 'Sun', dayIndex: 0, events: 4 },
+    { day: 'Mon', dayIndex: 1, events: 7 },
+    { day: 'Tue', dayIndex: 2, events: 9 },
+    { day: 'Wed', dayIndex: 3, events: 7 },
+    { day: 'Thu', dayIndex: 4, events: 8 },
+    { day: 'Fri', dayIndex: 5, events: 6 },
+    { day: 'Sat', dayIndex: 6, events: 5 },
+  ],
   languageStats: [
-    { name: 'TypeScript', count: 6, stars: 110, color: '#3178c6', percentage: 46 },
-    { name: 'Python', count: 3, stars: 28, color: '#3572A5', percentage: 23 },
-    { name: 'JavaScript', count: 2, stars: 14, color: '#f1e05a', percentage: 15 },
-    { name: 'C', count: 1, stars: 11, color: '#555555', percentage: 8 },
-    { name: 'Lua', count: 1, stars: 5, color: '#000080', percentage: 8 },
+    { name: 'TypeScript', count: 5, stars: 0, color: '#3178c6', percentage: 38 },
+    { name: 'JavaScript', count: 3, stars: 0, color: '#f1e05a', percentage: 23 },
+    { name: 'HTML', count: 3, stars: 0, color: '#e34c26', percentage: 23 },
+    { name: 'Python', count: 1, stars: 0, color: '#3572A5', percentage: 8 },
+    { name: 'C#', count: 1, stars: 0, color: '#178600', percentage: 8 },
   ],
 };
 

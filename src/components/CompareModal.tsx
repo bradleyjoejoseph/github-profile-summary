@@ -211,8 +211,8 @@ export const CompareModal: React.FC<CompareModalProps> = ({
           {
             id: 'gp_score',
             roundNumber: 6,
-            title: 'Endless GitPulse Score',
-            subtitle: 'Combined weighted index (0 → ∞)',
+            title: 'GitPulse Score',
+            subtitle: 'Combined weighted engineering score',
             valA: gpA.totalScore,
             valB: gpB.totalScore,
             displayA: `${gpA.totalScore.toLocaleString()} GP`,

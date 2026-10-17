@@ -230,7 +230,7 @@ export const ProfileHero: React.FC<ProfileHeroProps> = ({
           </div>
         </div>
 
-        {/* Endless GitPulse Ranking Score Banner */}
+        {/* GitPulse Score Banner */}
         <div className="mt-6 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#0d1117]/90 via-[#161b22]/90 to-[#0d1117]/90 border border-white/10 relative overflow-hidden">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
@@ -240,10 +240,7 @@ export const ProfileHero: React.FC<ProfileHeroProps> = ({
               <div>
                 <div className="flex items-center gap-2">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-[#2997ff]">
-                    GitPulse Endless Score
-                  </span>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-white/5 text-[#8b949e] border border-white/5">
-                    0 → ∞ Weighted Index
+                    GitPulse Score
                   </span>
                 </div>
                 <div className="flex items-baseline gap-2.5 mt-0.5">
@@ -252,7 +249,7 @@ export const ProfileHero: React.FC<ProfileHeroProps> = ({
                   </span>
                   <span className="text-xs font-bold font-mono text-[#2997ff]">GP</span>
                   <span className="text-xs text-[#8b949e] hidden sm:inline">
-                    • Built from Originality, Tenure, Polyglot Stack & Scale
+                    • Based on Originality, Tenure, Polyglot Stack & Scale
                   </span>
                 </div>
               </div>

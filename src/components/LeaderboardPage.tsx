@@ -84,7 +84,7 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
         id: 'gp_score',
         label: 'GitPulse Score (GP)',
         shortLabel: 'GitPulse Score',
-        description: 'Endless weighted engineering index starting from 0 and building up across all stats',
+        description: 'Weighted engineering score based on Originality, Tenure, Polyglot Stack, Codebase Scale, and Impact',
         icon: <Trophy className="w-4 h-4 text-amber-400" />,
         accentColor: '#f59e0b',
         getValue: (e) => e.gp.totalScore,
@@ -93,7 +93,7 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
       {
         id: 'originality',
         label: 'Originality Ratio',
-        shortLabel: '100% Originality',
+        shortLabel: 'Originality',
         description: 'Highest percentage of original, non-forked source repositories built from scratch',
         icon: <Code2 className="w-4 h-4 text-emerald-400" />,
         accentColor: '#10b981',
@@ -184,8 +184,7 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
               GitPulse Leaderboards
             </h1>
             <p className="mt-2 text-xs sm:text-sm text-[#8b949e] max-w-2xl leading-relaxed">
-              Every developer starts at <span className="text-white font-mono font-bold">0 GP</span> and builds up an uncapped, endless{' '}
-              <span className="text-[#2997ff] font-semibold">GitPulse Score</span> weighted across Originality, Tenure, Polyglot Stack, Codebase Scale, and Impact.
+              Developers are ranked by their <span className="text-[#2997ff] font-semibold">GitPulse Score</span> and individual category stats across Originality, Tenure, Polyglot Stack, Codebase Scale, and Impact.
             </p>
           </div>
 
@@ -233,29 +232,29 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
         {showFormulaModal && (
           <div className="mt-5 pt-5 border-t border-white/10 grid grid-cols-1 sm:grid-cols-5 gap-3 battle-round-slide-down">
             <div className="p-3 rounded-xl bg-black/40 border border-emerald-500/20">
-              <span className="text-[11px] font-bold text-emerald-400 uppercase">1. Originality</span>
-              <p className="text-xs font-mono font-bold text-white mt-1">24 GP/% + 165 GP/src</p>
+              <span className="text-[11px] font-bold text-emerald-400 uppercase">1. Original Sources</span>
+              <p className="text-xs font-mono font-bold text-white mt-1">4 GP × Source Repos</p>
               <p className="text-[11px] text-[#8b949e] mt-0.5">Rewards building original code over forks</p>
             </div>
             <div className="p-3 rounded-xl bg-black/40 border border-purple-500/20">
-              <span className="text-[11px] font-bold text-purple-400 uppercase">2. Veteran Tenure</span>
-              <p className="text-xs font-mono font-bold text-white mt-1">420 GP × Years Active</p>
+              <span className="text-[11px] font-bold text-purple-400 uppercase">2. GitHub Tenure</span>
+              <p className="text-xs font-mono font-bold text-white mt-1">4 GP × Years Active</p>
               <p className="text-[11px] text-[#8b949e] mt-0.5">Rewards long-term GitHub engineering history</p>
             </div>
             <div className="p-3 rounded-xl bg-black/40 border border-blue-500/20">
               <span className="text-[11px] font-bold text-[#2997ff] uppercase">3. Polyglot Stack</span>
-              <p className="text-xs font-mono font-bold text-white mt-1">380 GP × Languages</p>
+              <p className="text-xs font-mono font-bold text-white mt-1">6 GP × Languages</p>
               <p className="text-[11px] text-[#8b949e] mt-0.5">Rewards multi-language versatility</p>
             </div>
             <div className="p-3 rounded-xl bg-black/40 border border-cyan-500/20">
               <span className="text-[11px] font-bold text-cyan-400 uppercase">4. Codebase Scale</span>
-              <p className="text-xs font-mono font-bold text-white mt-1">110 GP/repo + 35 GP/MB</p>
+              <p className="text-xs font-mono font-bold text-white mt-1">1 GP/repo + 1 GP/40MB</p>
               <p className="text-[11px] text-[#8b949e] mt-0.5">Rewards codebase volume & shipped projects</p>
             </div>
             <div className="p-3 rounded-xl bg-black/40 border border-amber-500/20">
-              <span className="text-[11px] font-bold text-amber-400 uppercase">5. Endless Impact</span>
-              <p className="text-xs font-mono font-bold text-white mt-1">15 GP/★ + 12 GP/event</p>
-              <p className="text-[11px] text-[#8b949e] mt-0.5">Uncapped scaling from 0 to infinity</p>
+              <span className="text-[11px] font-bold text-amber-400 uppercase">5. Activity & Impact</span>
+              <p className="text-xs font-mono font-bold text-white mt-1">Events + Star Impact</p>
+              <p className="text-[11px] text-[#8b949e] mt-0.5">Grows as you push commits and earn stars</p>
             </div>
           </div>
         )}
@@ -427,7 +426,7 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
                   </div>
                   <div className="text-right">
                     <span className="text-[10px] uppercase tracking-wider text-[#8b949e] font-bold block">
-                      Endless GP Score
+                      GitPulse Score
                     </span>
                     <span className="text-sm font-extrabold font-mono text-white">
                       <ScoreCell
@@ -482,7 +481,7 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
               <tr className="border-b border-white/8 text-[11px] font-bold uppercase tracking-wider text-[#8b949e] bg-black/20">
                 <th className="py-3.5 px-4 w-16">Rank</th>
                 <th className="py-3.5 px-4">Developer</th>
-                <th className="py-3.5 px-4">GitPulse Score (0 → ∞)</th>
+                <th className="py-3.5 px-4">GitPulse Score</th>
                 <th className="py-3.5 px-4">Originality</th>
                 <th className="py-3.5 px-4">Tenure</th>
                 <th className="py-3.5 px-4">Stack</th>
