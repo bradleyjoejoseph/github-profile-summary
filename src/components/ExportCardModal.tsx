@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { X, Download, Copy, Check, Sparkles, Star, GitFork, BookOpen } from 'lucide-react';
+import { X, Download, Copy, Check, Sparkles, Star, Calendar, BookOpen } from 'lucide-react';
 import { toPng } from 'html-to-image';
 import type { UserSummaryData } from '../types/github';
 
@@ -20,7 +20,7 @@ export const ExportCardModal: React.FC<ExportCardModalProps> = ({
 
   if (!isOpen) return null;
 
-  const { user, totalStars, totalForks, languageStats } = summary;
+  const { user, totalStars, languageStats } = summary;
 
   const handleDownload = async () => {
     if (!cardRef.current) return;
@@ -117,26 +117,26 @@ export const ExportCardModal: React.FC<ExportCardModalProps> = ({
             <div className="relative mt-4 pt-3.5 border-t border-white/10 grid grid-cols-3 gap-2 text-center">
               <div className="p-2 rounded-xl bg-black/40 border border-white/5">
                 <span className="text-[10px] text-gray-400 uppercase font-semibold flex items-center justify-center gap-1">
-                  <Star className="w-3 h-3 text-amber-400" /> Stars
-                </span>
-                <span className="text-xs font-bold font-mono text-amber-300 mt-0.5 block">
-                  ★ {totalStars.toLocaleString()}
-                </span>
-              </div>
-              <div className="p-2 rounded-xl bg-black/40 border border-white/5">
-                <span className="text-[10px] text-gray-400 uppercase font-semibold flex items-center justify-center gap-1">
-                  <GitFork className="w-3 h-3 text-emerald-400" /> Forks
-                </span>
-                <span className="text-xs font-bold font-mono text-emerald-300 mt-0.5 block">
-                  🍴 {totalForks.toLocaleString()}
-                </span>
-              </div>
-              <div className="p-2 rounded-xl bg-black/40 border border-white/5">
-                <span className="text-[10px] text-gray-400 uppercase font-semibold flex items-center justify-center gap-1">
                   <BookOpen className="w-3 h-3 text-[#2997ff]" /> Repos
                 </span>
                 <span className="text-xs font-bold font-mono text-blue-300 mt-0.5 block">
                   {user.public_repos.toLocaleString()}
+                </span>
+              </div>
+              <div className="p-2 rounded-xl bg-black/40 border border-white/5">
+                <span className="text-[10px] text-gray-400 uppercase font-semibold flex items-center justify-center gap-1">
+                  <Calendar className="w-3 h-3 text-purple-400" /> Tenure
+                </span>
+                <span className="text-xs font-bold font-mono text-purple-300 mt-0.5 block">
+                  {Math.max(1, new Date().getFullYear() - new Date(user.created_at).getFullYear())}y+ Active
+                </span>
+              </div>
+              <div className="p-2 rounded-xl bg-black/40 border border-white/5">
+                <span className="text-[10px] text-gray-400 uppercase font-semibold flex items-center justify-center gap-1">
+                  <Star className="w-3 h-3 text-amber-400" /> {totalStars > 0 ? 'Stars' : 'Stack'}
+                </span>
+                <span className="text-xs font-bold font-mono text-amber-300 mt-0.5 block truncate">
+                  {totalStars > 0 ? `★ ${totalStars.toLocaleString()}` : (summary.primaryLanguage || 'Code')}
                 </span>
               </div>
             </div>

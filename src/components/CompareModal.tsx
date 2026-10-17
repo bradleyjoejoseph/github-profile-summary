@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, GitCompare, Loader2, Trophy, Star, BookOpen, Users } from 'lucide-react';
+import { X, GitCompare, Loader2, Trophy, Star, BookOpen } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { fetchUserSummary } from '../services/githubApi';
 import type { UserSummaryData } from '../types/github';
@@ -180,46 +180,40 @@ export const CompareModal: React.FC<CompareModalProps> = ({
                 </div>
               </div>
 
-              {/* Metric: Followers */}
-              <div className="p-3.5 rounded-2xl bg-black/30 border border-white/5">
-                <div className="flex items-center justify-between text-xs font-semibold mb-2">
-                  <span className="text-[#2997ff] font-mono">
-                    {userA.user.followers.toLocaleString()}
-                  </span>
-                  <span className="text-[#8b949e] uppercase tracking-wider text-[11px] flex items-center gap-1">
-                    <Users className="w-3 h-3 text-pink-400" /> Followers
-                  </span>
-                  <span className="text-purple-400 font-mono">
-                    {userB.user.followers.toLocaleString()}
-                  </span>
-                </div>
-                <div className="h-2 w-full bg-black/50 rounded-full overflow-hidden flex">
-                  <div
-                    className="h-full bg-[#2997ff] transition-all duration-500"
-                    style={{
-                      width: `${
-                        userA.user.followers + userB.user.followers === 0
-                          ? 50
-                          : (userA.user.followers /
-                              (userA.user.followers + userB.user.followers)) *
-                            100
-                      }%`,
-                    }}
-                  />
-                  <div
-                    className="h-full bg-purple-500 transition-all duration-500"
-                    style={{
-                      width: `${
-                        userA.user.followers + userB.user.followers === 0
-                          ? 50
-                          : (userB.user.followers /
-                              (userA.user.followers + userB.user.followers)) *
-                            100
-                      }%`,
-                    }}
-                  />
-                </div>
-              </div>
+              {/* Metric: Engineering Experience / Tenure */}
+              {(() => {
+                const yearsA = Math.max(1, new Date().getFullYear() - new Date(userA.user.created_at).getFullYear());
+                const yearsB = Math.max(1, new Date().getFullYear() - new Date(userB.user.created_at).getFullYear());
+                return (
+                  <div className="p-3.5 rounded-2xl bg-black/30 border border-white/5">
+                    <div className="flex items-center justify-between text-xs font-semibold mb-2">
+                      <span className="text-[#2997ff] font-mono">
+                        {yearsA} Years Active
+                      </span>
+                      <span className="text-[#8b949e] uppercase tracking-wider text-[11px] flex items-center gap-1">
+                        <BookOpen className="w-3 h-3 text-purple-400" /> Experience on GitHub
+                      </span>
+                      <span className="text-purple-400 font-mono">
+                        {yearsB} Years Active
+                      </span>
+                    </div>
+                    <div className="h-2 w-full bg-black/50 rounded-full overflow-hidden flex">
+                      <div
+                        className="h-full bg-[#2997ff] transition-all duration-500"
+                        style={{
+                          width: `${(yearsA / (yearsA + yearsB)) * 100}%`,
+                        }}
+                      />
+                      <div
+                        className="h-full bg-purple-500 transition-all duration-500"
+                        style={{
+                          width: `${(yearsB / (yearsA + yearsB)) * 100}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* Metric: Public Repos */}
               <div className="p-3.5 rounded-2xl bg-black/30 border border-white/5">

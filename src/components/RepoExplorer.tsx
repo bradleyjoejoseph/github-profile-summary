@@ -206,15 +206,25 @@ export const RepoExplorer: React.FC<RepoExplorerProps> = ({ repos }) => {
                         </div>
                       )}
 
-                      <div className="flex items-center gap-1 text-amber-400 font-mono text-[11px]">
-                        <Star className="w-3 h-3" />
-                        <span>{repo.stargazers_count}</span>
-                      </div>
+                      {repo.stargazers_count > 0 && (
+                        <div className="flex items-center gap-1 text-amber-400 font-mono text-[11px]">
+                          <Star className="w-3 h-3" />
+                          <span>{repo.stargazers_count}</span>
+                        </div>
+                      )}
 
-                      <div className="flex items-center gap-1 text-emerald-400 font-mono text-[11px]">
-                        <GitFork className="w-3 h-3" />
-                        <span>{repo.forks_count}</span>
-                      </div>
+                      {repo.forks_count > 0 && (
+                        <div className="flex items-center gap-1 text-emerald-400 font-mono text-[11px]">
+                          <GitFork className="w-3 h-3" />
+                          <span>{repo.forks_count}</span>
+                        </div>
+                      )}
+
+                      {repo.size > 0 && (
+                        <span className="text-[10px] font-mono text-[#6e7681]">
+                          {repo.size >= 1024 ? `${(repo.size / 1024).toFixed(1)} MB` : `${repo.size} KB`}
+                        </span>
+                      )}
                     </div>
 
                     <span className="text-[10px] font-mono text-[#6e7681]">

@@ -164,6 +164,8 @@ export function App() {
               user={summary.user}
               totalStars={summary.totalStars}
               totalForks={summary.totalForks}
+              primaryLanguage={summary.primaryLanguage}
+              sourceReposCount={summary.sourceReposCount}
               onRefresh={handleRefresh}
               onOpenCompare={() => setIsCompareModalOpen(true)}
               onOpenExportCard={() => setIsExportCardModalOpen(true)}

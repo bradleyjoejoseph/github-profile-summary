@@ -12,9 +12,9 @@ import {
   GitCompare,
   Check,
   Star,
-  GitFork,
   BookOpen,
-  Users,
+  Code2,
+  Sparkles,
 } from 'lucide-react';
 import type { GitHubUser } from '../types/github';
 
@@ -22,6 +22,8 @@ interface ProfileHeroProps {
   user: GitHubUser;
   totalStars: number;
   totalForks: number;
+  primaryLanguage?: string;
+  sourceReposCount?: number;
   onRefresh: () => void;
   onOpenCompare: () => void;
   onOpenExportCard: () => void;
@@ -30,7 +32,8 @@ interface ProfileHeroProps {
 export const ProfileHero: React.FC<ProfileHeroProps> = ({
   user,
   totalStars,
-  totalForks,
+  primaryLanguage = 'TypeScript',
+  sourceReposCount,
   onRefresh,
   onOpenCompare,
   onOpenExportCard,
@@ -47,6 +50,8 @@ export const ProfileHero: React.FC<ProfileHeroProps> = ({
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  const calculatedSources = sourceReposCount ?? user.public_repos;
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-5">
@@ -135,7 +140,7 @@ export const ProfileHero: React.FC<ProfileHeroProps> = ({
                 <div className="flex items-center gap-1.5">
                   <Calendar className="w-3.5 h-3.5 text-amber-400" />
                   <span>
-                    Joined {joinedMonth} {joinedYear} ({yearsOnGithub}y)
+                    Joined {joinedMonth} {joinedYear} ({yearsOnGithub}y experience)
                   </span>
                 </div>
               </div>
@@ -146,7 +151,7 @@ export const ProfileHero: React.FC<ProfileHeroProps> = ({
           <div className="flex flex-wrap lg:flex-col items-center lg:items-end gap-2.5 w-full lg:w-auto shrink-0 pt-3 lg:pt-0 border-t lg:border-t-0 border-white/5">
             <button
               onClick={onOpenExportCard}
-              className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-gradient-to-r from-[#2997ff] to-[#0071e3] hover:from-[#3ea3ff] hover:to-[#0077ed] text-white shadow-md shadow-blue-500/20 transition-all active:scale-95"
+              className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-gradient-to-r from-[#2997ff] to-[#0071e3] hover:from-[#3ea3ff] hover:to-[#0077ed] text-white shadow-md shadow-blue-500/20 transition-all active:scale-95 cursor-pointer"
             >
               <Download className="w-4 h-4" />
               <span>Export Card (PNG)</span>
@@ -154,7 +159,7 @@ export const ProfileHero: React.FC<ProfileHeroProps> = ({
 
             <button
               onClick={onOpenCompare}
-              className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium bg-white/5 border border-white/10 text-[var(--text-primary)] hover:bg-white/10 hover:border-white/20 transition-all active:scale-95"
+              className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium bg-white/5 border border-white/10 text-[var(--text-primary)] hover:bg-white/10 hover:border-white/20 transition-all active:scale-95 cursor-pointer"
             >
               <GitCompare className="w-4 h-4 text-[#2997ff]" />
               <span>Compare User</span>
@@ -163,7 +168,7 @@ export const ProfileHero: React.FC<ProfileHeroProps> = ({
             <div className="flex items-center gap-2 w-full lg:w-auto">
               <button
                 onClick={handleShare}
-                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-white/5 border border-white/10 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-white/20 transition-all"
+                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-white/5 border border-white/10 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-white/20 transition-all cursor-pointer"
                 title="Copy share link"
               >
                 {copied ? (
@@ -181,7 +186,7 @@ export const ProfileHero: React.FC<ProfileHeroProps> = ({
 
               <button
                 onClick={onRefresh}
-                className="p-2 rounded-xl text-xs font-medium bg-white/5 border border-white/10 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-white/20 transition-all active:scale-95"
+                className="p-2 rounded-xl text-xs font-medium bg-white/5 border border-white/10 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-white/20 transition-all active:scale-95 cursor-pointer"
                 title="Refresh from GitHub API"
               >
                 <RotateCw className="w-3.5 h-3.5" />
@@ -190,27 +195,11 @@ export const ProfileHero: React.FC<ProfileHeroProps> = ({
           </div>
         </div>
 
-        {/* macOS Control Center Ribbon */}
+        {/* macOS Control Center Ribbon - Curated High-Impact Stats */}
         <div className="mt-6 pt-5 border-t border-white/5 grid grid-cols-2 sm:grid-cols-4 gap-3.5">
           <div className="p-3 rounded-2xl bg-black/30 border border-white/5 text-center">
             <span className="text-[11px] text-[#8b949e] uppercase font-semibold tracking-wider flex items-center justify-center gap-1">
-              <Star className="w-3 h-3 text-amber-400" /> Total Stars
-            </span>
-            <p className="text-xl sm:text-2xl font-bold font-mono text-amber-400 mt-1">
-              ★ {totalStars.toLocaleString()}
-            </p>
-          </div>
-          <div className="p-3 rounded-2xl bg-black/30 border border-white/5 text-center">
-            <span className="text-[11px] text-[#8b949e] uppercase font-semibold tracking-wider flex items-center justify-center gap-1">
-              <GitFork className="w-3 h-3 text-emerald-400" /> Total Forks
-            </span>
-            <p className="text-xl sm:text-2xl font-bold font-mono text-emerald-400 mt-1">
-              🍴 {totalForks.toLocaleString()}
-            </p>
-          </div>
-          <div className="p-3 rounded-2xl bg-black/30 border border-white/5 text-center">
-            <span className="text-[11px] text-[#8b949e] uppercase font-semibold tracking-wider flex items-center justify-center gap-1">
-              <BookOpen className="w-3 h-3 text-[#2997ff]" /> Public Repos
+              <BookOpen className="w-3 h-3 text-[#2997ff]" /> Total Repos
             </span>
             <p className="text-xl sm:text-2xl font-bold font-mono text-[var(--text-primary)] mt-1">
               {user.public_repos.toLocaleString()}
@@ -218,10 +207,34 @@ export const ProfileHero: React.FC<ProfileHeroProps> = ({
           </div>
           <div className="p-3 rounded-2xl bg-black/30 border border-white/5 text-center">
             <span className="text-[11px] text-[#8b949e] uppercase font-semibold tracking-wider flex items-center justify-center gap-1">
-              <Users className="w-3 h-3 text-pink-400" /> Followers
+              <Code2 className="w-3 h-3 text-emerald-400" /> Source Projects
             </span>
-            <p className="text-xl sm:text-2xl font-bold font-mono text-[var(--text-primary)] mt-1">
-              {user.followers.toLocaleString()}
+            <p className="text-xl sm:text-2xl font-bold font-mono text-emerald-400 mt-1">
+              {calculatedSources} Sources
+            </p>
+          </div>
+          <div className="p-3 rounded-2xl bg-black/30 border border-white/5 text-center">
+            <span className="text-[11px] text-[#8b949e] uppercase font-semibold tracking-wider flex items-center justify-center gap-1">
+              <Calendar className="w-3 h-3 text-purple-400" /> Tenure
+            </span>
+            <p className="text-xl sm:text-2xl font-bold font-mono text-purple-400 mt-1">
+              {yearsOnGithub}y+ Active
+            </p>
+          </div>
+          <div className="p-3 rounded-2xl bg-black/30 border border-white/5 text-center">
+            <span className="text-[11px] text-[#8b949e] uppercase font-semibold tracking-wider flex items-center justify-center gap-1">
+              {totalStars > 0 ? (
+                <>
+                  <Star className="w-3 h-3 text-amber-400" /> Total Stars
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-3 h-3 text-amber-400" /> Primary Stack
+                </>
+              )}
+            </span>
+            <p className="text-xl sm:text-2xl font-bold font-mono text-amber-400 mt-1">
+              {totalStars > 0 ? `★ ${totalStars.toLocaleString()}` : primaryLanguage}
             </p>
           </div>
         </div>

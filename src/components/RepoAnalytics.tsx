@@ -8,7 +8,7 @@ import {
   Tooltip,
   Cell,
 } from 'recharts';
-import { Star, GitFork, BarChart3 } from 'lucide-react';
+import { Star, BarChart3, HardDrive } from 'lucide-react';
 import type { GitHubRepo } from '../types/github';
 import { getLanguageColor } from '../services/languageColors';
 
@@ -19,11 +19,14 @@ interface RepoAnalyticsProps {
 
 export const RepoAnalytics: React.FC<RepoAnalyticsProps> = ({
   topStarredRepos,
-  topForkedRepos,
 }) => {
-  const [metric, setMetric] = useState<'stars' | 'forks'>('stars');
+  const [metric, setMetric] = useState<'stars' | 'size'>('stars');
 
-  const rawRepos = metric === 'stars' ? topStarredRepos : topForkedRepos;
+  // If metric is 'stars', sort by stars. If 'size', sort by code size in KB.
+  const rawRepos = [...topStarredRepos].sort((a, b) => {
+    if (metric === 'stars') return (b.stargazers_count || 0) - (a.stargazers_count || 0);
+    return (b.size || 0) - (a.size || 0);
+  });
 
   if (rawRepos.length === 0) {
     return (
@@ -33,10 +36,16 @@ export const RepoAnalytics: React.FC<RepoAnalyticsProps> = ({
     );
   }
 
+  const formatSize = (kb: number) => {
+    if (kb >= 1024) return `${(kb / 1024).toFixed(1)} MB`;
+    return `${kb} KB`;
+  };
+
   const chartData = rawRepos.slice(0, 8).map((repo) => ({
     name: repo.name.length > 14 ? `${repo.name.slice(0, 12)}...` : repo.name,
     fullName: repo.full_name,
-    value: metric === 'stars' ? repo.stargazers_count : repo.forks_count,
+    value: metric === 'stars' ? repo.stargazers_count : Math.round(repo.size || 10),
+    displayValue: metric === 'stars' ? `★ ${repo.stargazers_count}` : formatSize(repo.size || 10),
     language: repo.language || 'Unknown',
     color: getLanguageColor(repo.language),
     url: repo.html_url,
@@ -50,10 +59,10 @@ export const RepoAnalytics: React.FC<RepoAnalyticsProps> = ({
         <div>
           <h2 className="text-base font-bold text-[var(--text-primary)] flex items-center gap-2">
             <BarChart3 className="w-4 h-4 text-indigo-400" />
-            Repository Impact Ranking
+            Repository Architecture & Scale
           </h2>
           <p className="text-xs text-[#8b949e] mt-0.5">
-            Top projects ranked by community popularity
+            Key repositories ranked by impact and codebase size
           </p>
         </div>
 
@@ -67,18 +76,18 @@ export const RepoAnalytics: React.FC<RepoAnalyticsProps> = ({
             <span>Stars</span>
           </button>
           <button
-            onClick={() => setMetric('forks')}
-            className={`apple-segmented-item flex items-center gap-1.5 ${metric === 'forks' ? 'active' : ''}`}
+            onClick={() => setMetric('size')}
+            className={`apple-segmented-item flex items-center gap-1.5 ${metric === 'size' ? 'active' : ''}`}
           >
-            <GitFork className="w-3 h-3 text-emerald-400" />
-            <span>Forks</span>
+            <HardDrive className="w-3 h-3 text-[#2997ff]" />
+            <span>Codebase Scale</span>
           </button>
         </div>
       </div>
 
       <div className="mt-5 h-64 w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={chartData} margin={{ top: 10, right: 10, left: -25, bottom: 20 }}>
+          <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 20 }}>
             <XAxis
               dataKey="name"
               stroke="#8b949e"
@@ -93,6 +102,7 @@ export const RepoAnalytics: React.FC<RepoAnalyticsProps> = ({
               fontSize={11}
               tickLine={false}
               axisLine={false}
+              tickFormatter={(v) => (metric === 'size' ? formatSize(v) : v.toString())}
             />
             <Tooltip
               content={({ active, payload }) => {
@@ -116,8 +126,8 @@ export const RepoAnalytics: React.FC<RepoAnalyticsProps> = ({
                           />
                           <span className="text-[#8b949e]">{item.language}</span>
                         </span>
-                        <span className="font-mono font-bold text-amber-400 flex items-center gap-1">
-                          {metric === 'stars' ? `★ ${item.value}` : `🍴 ${item.value}`}
+                        <span className="font-mono font-bold text-amber-400">
+                          {item.displayValue}
                         </span>
                       </div>
                     </div>

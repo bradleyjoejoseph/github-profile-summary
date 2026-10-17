@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, GitFork, BookOpen, Code2, Users, Award } from 'lucide-react';
+import { Star, BookOpen, Code2, Layers, Cpu, ShieldCheck } from 'lucide-react';
 import type { UserSummaryData } from '../types/github';
 import { getLanguageColor } from '../services/languageColors';
 
@@ -10,55 +10,39 @@ interface MetricCardsProps {
 export const MetricCards: React.FC<MetricCardsProps> = ({ summary }) => {
   const {
     totalStars,
-    totalForks,
     sourceReposCount,
-    forkedReposCount,
     primaryLanguage,
     user,
+    languageStats,
   } = summary;
 
-  const getDeveloperTier = () => {
-    if (totalStars > 10000 || user.followers > 10000)
-      return { title: 'Legendary Contributor', color: 'text-purple-400', bg: 'bg-purple-500/10 border-purple-500/20' };
-    if (totalStars > 1000 || user.followers > 1000)
-      return { title: 'High Impact Author', color: 'text-[#2997ff]', bg: 'bg-blue-500/10 border-blue-500/20' };
-    if (totalStars > 100 || user.followers > 100)
-      return { title: 'Pro Open Sourcer', color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' };
-    return { title: 'Active Builder', color: 'text-indigo-400', bg: 'bg-indigo-500/10 border-indigo-500/20' };
-  };
-
-  const tier = getDeveloperTier();
   const langColor = getLanguageColor(primaryLanguage);
+
+  // Top technologies mastered
+  const topLanguages = languageStats.slice(0, 3).map((l) => l.name).join(', ') || primaryLanguage;
+  const originalRatio = Math.round((sourceReposCount / Math.max(1, user.public_repos)) * 100);
 
   const cards = [
     {
-      title: 'Total Stars',
-      value: totalStars.toLocaleString(),
-      subtitle: `${summary.topStarredRepos[0]?.name ? `Top: ${summary.topStarredRepos[0].name}` : 'Across all public repos'}`,
-      icon: Star,
-      iconColor: 'text-amber-400',
-      iconBg: 'bg-amber-400/10 border-amber-400/20',
-    },
-    {
-      title: 'Repositories',
+      title: 'Total Codebases',
       value: user.public_repos.toLocaleString(),
-      subtitle: `${sourceReposCount} sources • ${forkedReposCount} forks`,
+      subtitle: `${sourceReposCount} original source repositories`,
       icon: BookOpen,
       iconColor: 'text-[#2997ff]',
       iconBg: 'bg-blue-500/10 border-blue-500/20',
     },
     {
-      title: 'Community Forks',
-      value: totalForks.toLocaleString(),
-      subtitle: 'Code remixed by developers',
-      icon: GitFork,
+      title: 'Originality Ratio',
+      value: `${originalRatio}% Original`,
+      subtitle: 'Custom-built software from scratch',
+      icon: ShieldCheck,
       iconColor: 'text-emerald-400',
       iconBg: 'bg-emerald-400/10 border-emerald-400/20',
     },
     {
       title: 'Primary Language',
       value: primaryLanguage,
-      subtitle: `${summary.languageStats[0]?.percentage || 0}% of repositories`,
+      subtitle: `${summary.languageStats[0]?.percentage || 0}% of all projects`,
       icon: Code2,
       iconColor: 'text-indigo-400',
       iconBg: 'bg-indigo-400/10 border-indigo-400/20',
@@ -70,20 +54,30 @@ export const MetricCards: React.FC<MetricCardsProps> = ({ summary }) => {
       ),
     },
     {
-      title: 'Community Reach',
-      value: `${user.followers.toLocaleString()} fans`,
-      subtitle: `Following ${user.following.toLocaleString()} developers`,
-      icon: Users,
-      iconColor: 'text-pink-400',
-      iconBg: 'bg-pink-400/10 border-pink-400/20',
+      title: 'Tech Stack Breadth',
+      value: `${languageStats.length} Languages`,
+      subtitle: topLanguages ? `Proficient in: ${topLanguages}` : 'Multi-language engineering',
+      icon: Layers,
+      iconColor: 'text-purple-400',
+      iconBg: 'bg-purple-500/10 border-purple-500/20',
     },
     {
-      title: 'Developer Tier',
-      value: tier.title,
-      subtitle: `${user.public_gists} public gists shared`,
-      icon: Award,
-      iconColor: tier.color,
-      iconBg: tier.bg,
+      title: 'Community Impact',
+      value: totalStars > 0 ? `★ ${totalStars.toLocaleString()}` : `${user.public_repos} Projects`,
+      subtitle: summary.topStarredRepos[0]?.name
+        ? `Featured: ${summary.topStarredRepos[0].name}`
+        : 'Open-source software published',
+      icon: Star,
+      iconColor: 'text-amber-400',
+      iconBg: 'bg-amber-400/10 border-amber-400/20',
+    },
+    {
+      title: 'Specialization',
+      value: 'SaaS & AI Engineer',
+      subtitle: 'Full-stack software and intelligent systems',
+      icon: Cpu,
+      iconColor: 'text-cyan-400',
+      iconBg: 'bg-cyan-500/10 border-cyan-500/20',
     },
   ];
 
@@ -92,7 +86,7 @@ export const MetricCards: React.FC<MetricCardsProps> = ({ summary }) => {
       {/* Section Header */}
       <div className="flex items-center justify-between mb-3 px-1">
         <span className="text-[11px] font-semibold uppercase tracking-wider text-[#8b949e]">
-          Overview Metrics
+          Engineering Highlights
         </span>
         <span className="text-[10px] font-mono text-[#6e7681]">
           Control Center Widgets
@@ -114,7 +108,7 @@ export const MetricCards: React.FC<MetricCardsProps> = ({ summary }) => {
                   </span>
                   <div className="flex items-center mt-2">
                     {card.customBadge}
-                    <span className="text-2xl font-bold font-mono tracking-tight text-[var(--text-primary)]">
+                    <span className="text-xl sm:text-2xl font-bold font-mono tracking-tight text-[var(--text-primary)]">
                       {card.value}
                     </span>
                   </div>
@@ -128,7 +122,7 @@ export const MetricCards: React.FC<MetricCardsProps> = ({ summary }) => {
                 </div>
               </div>
 
-              <p className="mt-3 text-xs text-[#8b949e] font-mono">
+              <p className="mt-3 text-xs text-[#8b949e] font-mono truncate">
                 {card.subtitle}
               </p>
             </div>
