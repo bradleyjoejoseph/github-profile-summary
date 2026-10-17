@@ -33,7 +33,7 @@ export const ExportCardModal: React.FC<ExportCardModalProps> = ({
         pixelRatio: 2, // High-DPI Retina resolution
       });
       const link = document.createElement('a');
-      link.download = `${user.login}-profile-summary.png`;
+      link.download = `${user.login}-gitpulse.png`;
       link.href = dataUrl;
       link.click();
     } catch (err) {
@@ -44,7 +44,7 @@ export const ExportCardModal: React.FC<ExportCardModalProps> = ({
   };
 
   const handleCopyMarkdown = () => {
-    const md = `[![${user.login}'s GitHub Summary](https://bradleyjoejoseph.github.io/github-profile-summary/)](https://github.com/${user.login})`;
+    const md = `[![${user.login}'s GitPulse](https://bradleyjoejoseph.github.io/gitpulse/)](https://github.com/${user.login})`;
     navigator.clipboard.writeText(md);
     setCopiedMarkdown(true);
     setTimeout(() => setCopiedMarkdown(false), 2000);
@@ -68,10 +68,10 @@ export const ExportCardModal: React.FC<ExportCardModalProps> = ({
           </div>
           <div>
             <h2 className="text-lg font-bold text-[var(--text-primary)]">
-              Export Profile Summary Card
+              Export GitPulse Card
             </h2>
             <p className="text-xs text-[#8b949e]">
-              Share your stats card or embed it into your GitHub Profile README
+              Share your GitPulse stats card or embed it into your GitHub README
             </p>
           </div>
         </div>

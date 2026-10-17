@@ -107,7 +107,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* GitHub Star Link */}
           <a
-            href="https://github.com/bradleyjoejoseph/github-profile-summary"
+            href="https://github.com/bradleyjoejoseph/gitpulse"
             target="_blank"
             rel="noopener noreferrer"
             title="Star on GitHub"

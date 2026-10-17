@@ -65,7 +65,7 @@ export const Footer: React.FC = () => {
               <span>Portfolio</span>
             </a>
             <a
-              href="https://github.com/bradleyjoejoseph/github-profile-summary"
+              href="https://github.com/bradleyjoejoseph/gitpulse"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1 hover:text-[var(--text-primary)] transition-colors"
@@ -76,10 +76,10 @@ export const Footer: React.FC = () => {
           </div>
         </div>
 
-        {/* Tribute footnote */}
+        {/* Footnote */}
         <div className="mt-6 pt-5 border-t border-white/5 text-center text-[11px] text-[#6e7681]">
           <p>
-            Reimagining <code>profile-summary-for-github</code> with Apple Human Interface Guidelines and modern web standards.
+            <strong>GitPulse</strong> — Developer Analytics, Versus Arena & Leaderboards built with Apple Human Interface Guidelines.
           </p>
         </div>
       </div>

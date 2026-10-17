@@ -83,7 +83,7 @@ export function App() {
         upsertIntoLeaderboard(data);
       } catch (err: any) {
         console.error('Fetch error:', err);
-        const errMsg = err.message || 'Failed to fetch GitHub profile summary.';
+        const errMsg = err.message || 'Failed to fetch GitPulse developer profile.';
 
         // Check if targetUser is in our leaderboard presets
         const preset = INITIAL_LEADERBOARD_PROFILES.find(

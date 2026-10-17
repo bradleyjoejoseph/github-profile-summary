@@ -1,16 +1,16 @@
 {
-  "name": "github-profile-summary",
+  "name": "gitpulse",
   "version": "2.0.0",
-  "description": "GitPulse — Modern GitHub Profile Summary & Analytics Dashboard. Visualize developer activity, commit cadences, language breakdowns, and repository impact.",
+  "description": "GitPulse — Modern GitHub Developer Analytics, Versus Arena & Global Leaderboards.",
   "author": "Bradley Joseph <bradleyjoe007@gmail.com> (https://github.com/bradleyjoejoseph)",
-  "homepage": "https://bradleyjoejoseph.github.io/github-profile-summary/",
+  "homepage": "https://bradleyjoejoseph.github.io/gitpulse/",
   "repository": {
     "type": "git",
-    "url": "https://github.com/bradleyjoejoseph/github-profile-summary.git"
+    "url": "https://github.com/bradleyjoejoseph/gitpulse.git"
   },
   "keywords": [
     "github",
-    "profile-summary",
+    "gitpulse",
     "developer-tools",
     "dashboard",
     "analytics",

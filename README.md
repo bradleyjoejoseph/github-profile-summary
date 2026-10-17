@@ -1,47 +1,39 @@
 <div align="center">
 
-# ⚡ GitPulse — GitHub Profile Summary & Analytics
+# ⚡ GitPulse — Developer Analytics, Versus Arena & Leaderboards
 
-### *A modern, interactive profile visualizer, developer analytics suite, and card generator for GitHub.*
+### *A modern, interactive developer analytics suite, Tug-of-War Versus arena, and global leaderboard for GitHub.*
 
-[![Live Demo](https://img.shields.io/badge/demo-online-emerald.svg?style=for-the-badge&logo=vercel)](https://bradleyjoejoseph.github.io/github-profile-summary/)
+[![Live Demo](https://img.shields.io/badge/demo-online-emerald.svg?style=for-the-badge&logo=vercel)](https://bradleyjoejoseph.github.io/gitpulse/)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=for-the-badge)](LICENSE)
 [![React 19](https://img.shields.io/badge/React-19-61dafb.svg?style=for-the-badge&logo=react)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6.svg?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38bdf8.svg?style=for-the-badge&logo=tailwindcss)](https://tailwindcss.com/)
 [![Vite](https://img.shields.io/badge/Vite-8-646cff.svg?style=for-the-badge&logo=vite)](https://vite.dev/)
 
-[**Explore Live Demo »**](https://bradleyjoejoseph.github.io/github-profile-summary/)
+[**Explore GitPulse Live »**](https://bradleyjoejoseph.github.io/gitpulse/)
 
 ---
 
 </div>
 
-## 💡 Motivation
+## 💡 Overview
 
-The classic [profile-summary-for-github](https://github.com/tipsy/profile-summary-for-github) was an iconic tool that thousands of developers used to visualize their open-source contributions. Over the years, however, web standards and visualization aesthetics evolved dramatically.
-
-I built **GitPulse** to be the next-generation reimagining: a fast, client-side, zero-backend dashboard loaded with interactive charts, dark/midnight/light modes, head-to-head developer comparison, rate limit intelligence, and exportable profile cards for READMEs.
+**GitPulse** is a fast, client-side, zero-backend GitHub analytics platform crafted with Apple Human Interface Guidelines and GitHub Primer aesthetics. It features a weighted **GitPulse Score (GP)**, an animated **6-Round Tug-of-War Versus Mode**, **Global Multi-Stat Leaderboards**, interactive charts, and exportable high-DPI developer cards.
 
 ---
 
 ## ✨ Features
 
-- 👤 **Executive Profile Hero**: High-res avatar glow, bio, location, company, member tenure, hireability badge, and follower metrics.
-- 📊 **Key Metric KPIs**: Real-time aggregation of total stars earned, forks count, original vs forked repository ratios, and community standing.
-- 🎨 **Language Analytics**:
-  - Donut & progress chart of **Languages by Repository Count**.
-  - Donut & progress chart of **Languages by Stars Earned** (identifying which languages yield the highest community adoption).
-  - Official GitHub language palette with 100+ color mappings.
-- 🏆 **Repository Impact Ranking**: Ranked bar charts showcasing top projects by stars and forks.
-- ⏰ **Activity Cadence & Productivity Clock**:
-  - **Day-of-Week Cadence**: Identifies peak contribution days.
-  - **24-Hour Productivity Clock**: Determines developer archetypes (*"Night Owl"*, *"Morning Bird"*, or *"Afternoon Architect"*).
-- 🗂️ **Live Repository Explorer**: Instant client-side search, filtering by language (TypeScript, Python, etc.) and type (Sources vs Forks), and multi-criteria sorting.
-- ⚔️ **Developer Versus Mode**: Side-by-side comparison of any two developers with head-to-head stat bars and confetti celebrations.
-- 🎴 **Exportable Profile Summary Card**: Generate Retina high-DPI cards ready to download as PNG or embed directly in GitHub profile READMEs.
-- 🌓 **Multi-Theme Engine**: Seamless switching between **GitHub Dark**, **AMOLED Midnight**, **GitHub Dimmed**, and **Crisp Light** modes.
-- ⚡ **Smart Client-Side Caching**: 15-minute `localStorage` cache and instant response to ensure silky-smooth navigation with zero setup.
+- 🏆 **GitPulse Score (GP)**: Weighted developer index combining lifetime commits, stars, forks, followers, public repositories, and language breadth.
+- ⚔️ **Animated Tug-of-War Versus Arena**: Head-to-head developer battles where 6 stat rounds slide down sequentially and pull the master Tug-of-War power bar.
+- 🥇 **Global Multi-Stat Leaderboards**: Rank developers across GitPulse Score, Total Stars, Total Commits, Total Forks, Followers, and Public Repositories—plus add any GitHub user live.
+- 👤 **Executive Profile Hero**: High-res avatar glow, bio, location, company, member tenure, hireability badge, and score weightings breakdown.
+- 🎨 **Language Analytics**: Donut & progress breakdown of languages by repository count and stars earned.
+- ⏰ **Activity Cadence & Productivity Clock**: Day-of-week cadence and 24-hour productivity clock.
+- 🗂️ **Live Repository Explorer**: Instant client-side search, language filtering, and multi-criteria sorting.
+- 🎴 **Exportable GitPulse Card**: Generate Retina high-DPI cards ready to download as PNG or embed directly in GitHub READMEs.
+- 🌓 **Multi-Theme Engine**: Seamless switching between **GitHub Dark**, **AMOLED Midnight**, and **Crisp Light** modes.
 
 ---
 
@@ -54,23 +46,15 @@ I built **GitPulse** to be the next-generation reimagining: a fast, client-side,
 - **Icons**: [Lucide React](https://lucide.dev/)
 - **Exporting**: [html-to-image](https://github.com/bubkoo/html-to-image)
 - **Effects**: [canvas-confetti](https://github.com/catdad/canvas-confetti)
-- **Deployment**: [GitHub Actions & GitHub Pages](https://pages.github.com/)
 
 ---
 
 ## 🚀 Getting Started
 
-### Prerequisites
-
-- Node.js (v18 or higher)
-- npm or pnpm
-
-### Installation
-
 ```bash
 # Clone the repository
-git clone https://github.com/bradleyjoejoseph/github-profile-summary.git
-cd github-profile-summary
+git clone https://github.com/bradleyjoejoseph/gitpulse.git
+cd gitpulse
 
 # Install dependencies
 npm install
@@ -80,20 +64,6 @@ npm run dev
 ```
 
 Visit `http://localhost:5173` in your browser.
-
----
-
-## 📦 Building for Production
-
-```bash
-# Type check and bundle for production
-npm run build
-
-# Preview production build locally
-npm run preview
-```
-
-The compiled assets will be in the `dist/` directory, ready to be deployed to GitHub Pages, Vercel, or Netlify.
 
 ---
 
