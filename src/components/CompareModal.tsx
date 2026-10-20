@@ -54,7 +54,7 @@ export const CompareModal: React.FC<CompareModalProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   // revealedRounds: which round card has slid down (1..7)
-  // settledRounds: which round has finished tugging from 50% center to the winner (1..6)
+  // settledRounds: which round has finished resolving from 50% center to the winner (1..6)
   const [revealedRounds, setRevealedRounds] = useState(0);
   const [settledRounds, setSettledRounds] = useState(0);
   const [battleNonce, setBattleNonce] = useState(0);
@@ -77,7 +77,7 @@ export const CompareModal: React.FC<CompareModalProps> = ({
     }
   }, [isOpen, initialOpponentLogin]);
 
-  // Paced sequential slide-down + tug-of-war pull animation for each battle round
+  // Paced sequential slide-down + clash animation for each battle round
   useEffect(() => {
     if (!isOpen || !comparedUser) return;
 
@@ -86,13 +86,13 @@ export const CompareModal: React.FC<CompareModalProps> = ({
 
     const timers: Array<ReturnType<typeof setTimeout>> = [];
 
-    // 6 stat rounds, spaced 1,250ms apart so user can watch each round slide down and tug
+    // 6 stat rounds, spaced 1,250ms apart so user can watch each round slide down and clash
     const ROUND_STEP_MS = 1250;
-    const TUG_DELAY_MS = 420;
+    const CLASH_DELAY_MS = 420;
 
     for (let r = 1; r <= 6; r++) {
       const revealTime = (r - 1) * ROUND_STEP_MS + 180;
-      const settleTime = revealTime + TUG_DELAY_MS;
+      const settleTime = revealTime + CLASH_DELAY_MS;
 
       timers.push(
         setTimeout(() => {
@@ -107,7 +107,7 @@ export const CompareModal: React.FC<CompareModalProps> = ({
       );
     }
 
-    // Final verdict banner after all 6 rounds have slid down and tugged
+    // Final verdict banner after all 6 rounds have slid down and resolved
     const finalVerdictTime = 6 * ROUND_STEP_MS + 350;
     timers.push(
       setTimeout(() => {
@@ -274,7 +274,7 @@ export const CompareModal: React.FC<CompareModalProps> = ({
     }
   });
 
-  const masterTugPctA =
+  const masterClashPctA =
     winsA + winsB === 0
       ? 50
       : Math.min(86, Math.max(14, Math.round((winsA / (winsA + winsB)) * 100)));
@@ -302,11 +302,11 @@ export const CompareModal: React.FC<CompareModalProps> = ({
                   GitPulse Versus Arena
                 </h2>
                 <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-[#2997ff]/15 text-[#2997ff] border border-[#2997ff]/30 font-bold">
-                  6-Round Tug-of-War
+                  6-Round Battle
                 </span>
               </div>
               <p className="text-xs text-[#8b949e]">
-                Enter a GitHub username below to start the round-by-round Tug-of-War battle
+                Enter a GitHub username below to start the round-by-round battle
               </p>
             </div>
           </div>
@@ -397,7 +397,7 @@ export const CompareModal: React.FC<CompareModalProps> = ({
         {/* Battle Arena OR Pre-Battle Challenger Lobby */}
         {userB && gpB ? (
           <div className="mt-5 space-y-4">
-            {/* Fighter Corner Cards + Master Tug-of-War Power Bar */}
+            {/* Fighter Corner Cards + Master Battle Momentum Bar */}
             <div className="p-4 rounded-2xl bg-gradient-to-b from-white/[0.04] to-black/40 border border-white/10">
               <div className="grid grid-cols-2 gap-3 items-center">
                 {/* Fighter 1 (Blue Corner) */}
@@ -467,7 +467,7 @@ export const CompareModal: React.FC<CompareModalProps> = ({
                 </div>
               </div>
 
-              {/* Master Tug-of-War Rope */}
+              {/* Master Battle Momentum Bar */}
               <div className="mt-4">
                 <div className="flex items-center justify-between text-xs font-mono font-bold mb-1.5">
                   <span className="text-[#2997ff] flex items-center gap-1">
@@ -476,7 +476,7 @@ export const CompareModal: React.FC<CompareModalProps> = ({
                   <span className="text-[10px] uppercase tracking-widest text-[#8b949e] font-sans font-bold">
                     {settledRounds < 6
                       ? `Round ${Math.min(6, revealedRounds || 1)} of 6 Fighting...`
-                      : 'Master Tug-of-War'}
+                      : 'Battle Momentum'}
                   </span>
                   <span className="text-purple-400 flex items-center gap-1">
                     {winsB} Rounds Won <Flame className="w-3.5 h-3.5" />
@@ -487,17 +487,17 @@ export const CompareModal: React.FC<CompareModalProps> = ({
                   <div className="w-full h-full rounded-full overflow-hidden flex">
                     <div
                       className="h-full bg-gradient-to-r from-[#0071e3] to-[#2997ff] transition-all duration-1000 ease-out"
-                      style={{ width: `${masterTugPctA}%` }}
+                      style={{ width: `${masterClashPctA}%` }}
                     />
                     <div
                       className="h-full bg-gradient-to-l from-purple-700 to-purple-500 transition-all duration-1000 ease-out"
-                      style={{ width: `${100 - masterTugPctA}%` }}
+                      style={{ width: `${100 - masterClashPctA}%` }}
                     />
                   </div>
-                  {/* Center Knot / Clash Spark */}
+                  {/* Center Clash Spark */}
                   <div
                     className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-[#161b22] border-2 border-amber-400 flex items-center justify-center shadow-lg shadow-amber-500/40 transition-all duration-1000 ease-out z-10 clash-spark"
-                    style={{ left: `${masterTugPctA}%` }}
+                    style={{ left: `${masterClashPctA}%` }}
                   >
                     <Zap className="w-3 h-3 text-amber-400" />
                   </div>
@@ -581,7 +581,7 @@ export const CompareModal: React.FC<CompareModalProps> = ({
                       </div>
                     </div>
 
-                    {/* Animated Tug-of-War Clash Bar */}
+                    {/* Animated Clash Bar */}
                     <div className="relative h-2.5 w-full bg-black/60 rounded-full flex items-center">
                       <div className="w-full h-full rounded-full overflow-hidden flex">
                         <div
@@ -594,7 +594,7 @@ export const CompareModal: React.FC<CompareModalProps> = ({
                         />
                       </div>
 
-                      {/* Tug Point Divider Marker */}
+                      {/* Clash Point Divider Marker */}
                       <div
                         className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3.5 h-3.5 rounded-full bg-white border-2 border-[#161b22] shadow-md transition-all duration-900 ease-out"
                         style={{ left: `${clampedPctA}%` }}
@@ -614,13 +614,13 @@ export const CompareModal: React.FC<CompareModalProps> = ({
                   </div>
                   <div>
                     <span className="text-[10px] font-mono uppercase tracking-wider text-amber-300 font-bold">
-                      Battle Complete • Final Tug-of-War Verdict
+                      Battle Complete • Final Verdict
                     </span>
                     <h4 className="text-sm sm:text-base font-extrabold text-white">
                       {winsA > winsB
-                        ? `🏆 @${userA.user.login} wins the Tug-of-War (${winsA} – ${winsB})!`
+                        ? `🏆 @${userA.user.login} wins the battle (${winsA} – ${winsB})!`
                         : winsB > winsA
-                        ? `🏆 @${userB.user.login} wins the Tug-of-War (${winsB} – ${winsA})!`
+                        ? `🏆 @${userB.user.login} wins the battle (${winsB} – ${winsA})!`
                         : `⚡ Deadlock Draw (${winsA} – ${winsB})! Both engineers matched round-for-round!`}
                     </h4>
                   </div>
@@ -678,7 +678,7 @@ export const CompareModal: React.FC<CompareModalProps> = ({
 
             <p className="text-xs text-[#8b949e] max-w-md mx-auto">
               Type any GitHub username in the box above and press{' '}
-              <span className="text-white font-semibold">Start Battle</span> to watch both profiles clash round-by-round in a live Tug-of-War.
+              <span className="text-white font-semibold">Start Battle</span> to watch both profiles clash round-by-round.
             </p>
           </div>
         )}

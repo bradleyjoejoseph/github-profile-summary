@@ -74,7 +74,7 @@ export const BRADLEY_DEMO_DATA: UserSummaryData = {
       full_name: 'bradleyjoejoseph/gitpulse',
       private: false,
       html_url: 'https://github.com/bradleyjoejoseph/gitpulse',
-      description: 'GitPulse — Developer analytics, Versus Tug-of-War arena, and global GitHub leaderboards.',
+      description: 'GitPulse — Developer analytics, Versus Arena, and global GitHub leaderboards.',
       fork: false,
       created_at: '2026-10-16T12:00:00Z',
       updated_at: '2026-10-16T12:00:00Z',

@@ -2,7 +2,7 @@
 
 # ⚡ GitPulse — Developer Analytics, Versus Arena & Leaderboards
 
-### *A modern, interactive developer analytics suite, Tug-of-War Versus arena, and global leaderboard for GitHub.*
+### *A modern, interactive developer analytics suite, Versus arena, and global leaderboard for GitHub.*
 
 [![Live Demo](https://img.shields.io/badge/demo-online-emerald.svg?style=for-the-badge&logo=vercel)](https://bradleyjoejoseph.github.io/gitpulse/)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=for-the-badge)](LICENSE)
@@ -19,14 +19,14 @@
 
 ## 💡 Overview
 
-**GitPulse** is a fast, client-side, zero-backend GitHub analytics platform crafted with Apple Human Interface Guidelines and GitHub Primer aesthetics. It features a weighted **GitPulse Score (GP)**, an animated **6-Round Tug-of-War Versus Mode**, **Global Multi-Stat Leaderboards**, interactive charts, and exportable high-DPI developer cards.
+**GitPulse** is a fast, client-side, zero-backend GitHub analytics platform crafted with Apple Human Interface Guidelines and GitHub Primer aesthetics. It features a weighted **GitPulse Score (GP)**, an animated **6-Round Versus Battle Mode**, **Global Multi-Stat Leaderboards**, interactive charts, and exportable high-DPI developer cards.
 
 ---
 
 ## ✨ Features
 
 - 🏆 **GitPulse Score (GP)**: Weighted developer index combining lifetime commits, stars, forks, followers, public repositories, and language breadth.
-- ⚔️ **Animated Tug-of-War Versus Arena**: Head-to-head developer battles where 6 stat rounds slide down sequentially and pull the master Tug-of-War power bar.
+- ⚔️ **Animated Versus Arena**: Head-to-head developer battles where 6 stat rounds slide down sequentially with dynamic clash bars and momentum tracking.
 - 🥇 **Global Multi-Stat Leaderboards**: Rank developers across GitPulse Score, Total Stars, Total Commits, Total Forks, Followers, and Public Repositories—plus add any GitHub user live.
 - 👤 **Executive Profile Hero**: High-res avatar glow, bio, location, company, member tenure, hireability badge, and score weightings breakdown.
 - 🎨 **Language Analytics**: Donut & progress breakdown of languages by repository count and stars earned.

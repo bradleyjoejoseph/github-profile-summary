@@ -603,7 +603,7 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
                         <button
                           onClick={() => onBattleUser(entry.summary.user.login)}
                           className="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-[#2997ff]/15 hover:bg-[#2997ff]/25 text-[#2997ff] border border-[#2997ff]/30 transition-all cursor-pointer flex items-center gap-1"
-                          title="Fight in Versus Tug-of-War"
+                          title="Fight in Versus Battle"
                         >
                           <Swords className="w-3 h-3" />
                           <span>Fight</span>
