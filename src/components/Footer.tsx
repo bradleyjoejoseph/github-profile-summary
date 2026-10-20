@@ -1,5 +1,5 @@
 import React from 'react';
-import { Heart, Globe } from 'lucide-react';
+import { Globe } from 'lucide-react';
 import { GithubIcon } from './icons/GithubIcon';
 
 export const Footer: React.FC = () => {
@@ -21,7 +21,7 @@ export const Footer: React.FC = () => {
               A fusion of Apple HIG craft and GitHub developer aesthetics.
             </p>
             <p className="mt-1.5 text-xs text-[#8b949e] flex items-center justify-center md:justify-start gap-1">
-              Crafted with <Heart className="w-3 h-3 text-rose-500 fill-rose-500" /> by{' '}
+              By{' '}
               <a
                 href="https://github.com/bradleyjoejoseph"
                 target="_blank"
