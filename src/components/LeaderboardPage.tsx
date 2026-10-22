@@ -163,15 +163,15 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 space-y-6">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 mt-4 sm:mt-6 space-y-5 sm:space-y-6">
       {/* Leaderboard Hero Banner */}
-      <div className="apple-card p-6 sm:p-8 relative overflow-hidden">
+      <div className="apple-card p-4 sm:p-8 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#2997ff]/10 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-5 sm:gap-6">
           <div>
-            <div className="flex flex-wrap items-center gap-2 mb-3">
+            <div className="flex flex-wrap items-center gap-2 mb-2 sm:mb-3">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-bold">
                 <Trophy className="w-3.5 h-3.5 text-amber-400" />
                 <span>Global Developer Impact & Stat Leaderboards</span>
@@ -191,7 +191,7 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
             <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">
               GitPulse Leaderboards
             </h1>
-            <p className="mt-2 text-xs sm:text-sm text-[#8b949e] max-w-2xl leading-relaxed">
+            <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm text-[#8b949e] max-w-2xl leading-relaxed">
               Developers ranked by their <span className="text-[#2997ff] font-semibold">GitPulse Score</span> and real-world impact across{' '}
               <span className="text-white font-medium">Stars, Commits, Forks, Followers, and Repositories</span>.
             </p>
@@ -204,18 +204,22 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
                 type="text"
                 value={newUsername}
                 onChange={(e) => setNewUsername(e.target.value)}
-                placeholder="Add any GitHub user to leaderboard..."
-                className="flex-1 py-2.5 px-3.5 rounded-xl bg-black/50 border border-white/12 text-xs sm:text-sm text-white placeholder-[#6e7681] focus:outline-hidden focus:border-[#2997ff]"
+                placeholder="Add GitHub username..."
+                className="flex-1 py-2.5 px-3.5 rounded-xl bg-black/50 border border-white/12 text-base sm:text-sm text-white placeholder-[#6e7681] focus:outline-hidden focus:border-[#2997ff] min-h-[44px]"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck="false"
+                enterKeyHint="go"
               />
               <button
                 type="submit"
                 disabled={isAddingUser || !newUsername.trim()}
-                className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-[#2997ff] to-[#0071e3] hover:from-[#3ea3ff] hover:to-[#0077ed] disabled:opacity-50 text-white shadow-md transition-all active:scale-95 cursor-pointer shrink-0"
+                className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-gradient-to-r from-[#2997ff] to-[#0071e3] hover:from-[#3ea3ff] hover:to-[#0077ed] disabled:opacity-50 text-white shadow-md transition-all active:scale-95 cursor-pointer shrink-0 min-h-[44px]"
               >
                 {isAddingUser ? (
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
-                  <Plus className="w-3.5 h-3.5" />
+                  <Plus className="w-4 h-4" />
                 )}
                 <span>Rank User</span>
               </button>
@@ -498,7 +502,125 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
           </span>
         </div>
 
-        <div className="overflow-x-auto">
+        {/* Mobile Responsive Standings List (Apple iOS Card Layout) */}
+        <div className="sm:hidden divide-y divide-white/8">
+          {sortedEntries.map((entry, idx) => {
+            const rank = idx + 1;
+            const isCurrentUser =
+              entry.summary.user.login.toLowerCase() === currentUsername.toLowerCase();
+
+            return (
+              <div
+                key={entry.summary.user.login}
+                className={`p-4 transition-colors ${
+                  isCurrentUser ? 'bg-[#2997ff]/10' : ''
+                }`}
+              >
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  {/* Rank Badge */}
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono font-black text-xs px-2.5 py-1 rounded-lg bg-black/60 border border-white/10 text-white">
+                      {rank === 1 ? '🥇 #1' : rank === 2 ? '🥈 #2' : rank === 3 ? '🥉 #3' : `#${rank}`}
+                    </span>
+                    <span
+                      className="text-[10px] font-semibold px-2 py-0.5 rounded-full border truncate max-w-[140px]"
+                      style={{
+                        backgroundColor: `${entry.gp.rankBadgeColor}15`,
+                        color: entry.gp.rankBadgeColor,
+                        borderColor: `${entry.gp.rankBadgeColor}40`,
+                      }}
+                    >
+                      {entry.gp.rankTitle}
+                    </span>
+                  </div>
+
+                  {/* Active Category Metric Highlight */}
+                  <span
+                    className="text-xs font-mono font-extrabold px-2.5 py-1 rounded-full bg-black/60 border"
+                    style={{
+                      color: currentCat.accentColor,
+                      borderColor: `${currentCat.accentColor}40`,
+                    }}
+                  >
+                    {currentCat.formatValue(entry)}
+                  </span>
+                </div>
+
+                {/* Developer Avatar & Name + GitPulse Score */}
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <img
+                      src={entry.summary.user.avatar_url}
+                      alt={entry.summary.user.login}
+                      className="w-11 h-11 rounded-xl border border-white/15 object-cover shrink-0"
+                    />
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-bold text-sm text-white truncate">
+                          {entry.summary.user.name || entry.summary.user.login}
+                        </span>
+                        {isCurrentUser && (
+                          <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-[#2997ff]/20 text-[#2997ff] font-bold">
+                            YOU
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-xs font-mono text-[#8b949e] truncate block">
+                        @{entry.summary.user.login}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="text-right shrink-0">
+                    <span className="text-[10px] font-mono uppercase text-[#8b949e] font-bold block">
+                      Score
+                    </span>
+                    <span className="text-sm font-black font-mono text-white flex items-center justify-end gap-1">
+                      <Zap className="w-3 h-3 text-amber-400 shrink-0" />
+                      {entry.gp.totalScore.toLocaleString()} GP
+                    </span>
+                  </div>
+                </div>
+
+                {/* Secondary Key Stats Row */}
+                <div className="mt-3 grid grid-cols-3 gap-1.5 text-center text-[10px] font-mono bg-black/40 p-2 rounded-xl border border-white/5">
+                  <div>
+                    <span className="text-[#8b949e] block">Stars</span>
+                    <span className="font-bold text-amber-400">★ {entry.gp.metrics.totalStars.toLocaleString()}</span>
+                  </div>
+                  <div>
+                    <span className="text-[#8b949e] block">Commits</span>
+                    <span className="font-bold text-emerald-400">{entry.gp.metrics.totalCommits.toLocaleString()}</span>
+                  </div>
+                  <div>
+                    <span className="text-[#8b949e] block">Repos</span>
+                    <span className="font-bold text-cyan-400">{entry.gp.metrics.publicRepos.toLocaleString()}</span>
+                  </div>
+                </div>
+
+                {/* Large Thumb-Friendly Action Buttons */}
+                <div className="mt-3 flex items-center gap-2">
+                  <button
+                    onClick={() => onBattleUser(entry.summary.user.login)}
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs font-bold bg-[#2997ff]/20 hover:bg-[#2997ff]/30 text-[#2997ff] border border-[#2997ff]/30 transition-all active:scale-95 cursor-pointer min-h-[44px]"
+                  >
+                    <Swords className="w-3.5 h-3.5" />
+                    <span>Versus Battle</span>
+                  </button>
+                  <button
+                    onClick={() => onSelectProfile(entry.summary.user.login)}
+                    className="py-2.5 px-4 rounded-xl text-xs font-semibold bg-white/5 hover:bg-white/10 text-white border border-white/10 transition-all active:scale-95 cursor-pointer min-h-[44px]"
+                  >
+                    Profile
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Desktop Table Standings (Hidden on Mobile) */}
+        <div className="hidden sm:block overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-white/8 text-[11px] font-bold uppercase tracking-wider text-[#8b949e] bg-black/20">

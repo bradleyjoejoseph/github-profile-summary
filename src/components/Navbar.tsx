@@ -30,27 +30,28 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenCompareModal,
 }) => {
   return (
-    <header className="sticky top-3 z-40 w-full px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-      <div className="apple-glass-dock rounded-2xl h-14 px-4 sm:px-6 flex items-center justify-between gap-3 transition-all">
-        {/* Brand + Page Switcher */}
-        <div className="flex items-center gap-4">
+    <header className="sticky top-2 sm:top-3 z-40 w-full px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <div className="apple-glass-dock rounded-2xl h-14 px-3 sm:px-6 flex items-center justify-between gap-2.5 transition-all">
+        {/* Brand */}
+        <div className="flex items-center gap-3 sm:gap-4">
           <button
             onClick={() => onChangePage('profile')}
-            className="flex items-center gap-2.5 cursor-pointer group"
+            className="flex items-center gap-2 cursor-pointer group min-h-[44px] min-w-[44px] focus-visible:ring-2 focus-visible:ring-[#2997ff] rounded-xl"
+            aria-label="GitPulse Home"
           >
             <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#2997ff] to-[#0077ed] flex items-center justify-center text-white shadow-md shadow-blue-500/25 group-hover:scale-105 transition-transform">
               <Activity className="w-4 h-4 animate-pulse" />
             </div>
-            <span className="font-semibold text-base tracking-tight text-[var(--text-primary)]">
+            <span className="font-bold text-base tracking-tight text-[var(--text-primary)]">
               GitPulse
             </span>
           </button>
 
-          {/* Main Navigation Segmented Pill */}
-          <div className="apple-segmented-track">
+          {/* Desktop Main Navigation Segmented Pill (Hidden on mobile - mobile uses bottom tab bar) */}
+          <div className="apple-segmented-track hidden sm:inline-flex">
             <button
               onClick={() => onChangePage('profile')}
-              className={`apple-segmented-item flex items-center gap-1.5 cursor-pointer ${
+              className={`apple-segmented-item flex items-center gap-1.5 cursor-pointer min-h-[34px] ${
                 activePage === 'profile' ? 'active' : ''
               }`}
             >
@@ -59,7 +60,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
             <button
               onClick={() => onChangePage('leaderboard')}
-              className={`apple-segmented-item flex items-center gap-1.5 cursor-pointer ${
+              className={`apple-segmented-item flex items-center gap-1.5 cursor-pointer min-h-[34px] ${
                 activePage === 'leaderboard' ? 'active' : ''
               }`}
             >
@@ -74,32 +75,33 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Versus Mode Action Button */}
           <button
             onClick={onOpenCompareModal}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-gradient-to-r from-[#2997ff] to-purple-600 hover:from-[#3ea3ff] hover:to-purple-500 text-white shadow-md shadow-blue-500/20 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-gradient-to-r from-[#2997ff] to-purple-600 hover:from-[#3ea3ff] hover:to-purple-500 text-white shadow-md shadow-blue-500/20 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer min-h-[40px]"
+            title="Head-to-head Versus Battle"
           >
             <Swords className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Versus Mode</span>
+            <span className="inline font-medium sm:font-semibold">Versus</span>
           </button>
 
-          {/* Apple Segmented Theme Switcher */}
+          {/* Apple Segmented Theme Switcher (Desktop) */}
           <div className="apple-segmented-track hidden sm:inline-flex">
             <button
               onClick={() => onThemeChange('dark')}
               title="Dark Appearance"
-              className={`apple-segmented-item cursor-pointer ${theme === 'dark' ? 'active' : ''}`}
+              className={`apple-segmented-item cursor-pointer min-h-[34px] min-w-[34px] flex items-center justify-center ${theme === 'dark' ? 'active' : ''}`}
             >
               <Moon className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => onThemeChange('midnight')}
               title="Midnight AMOLED"
-              className={`apple-segmented-item cursor-pointer ${theme === 'midnight' ? 'active' : ''}`}
+              className={`apple-segmented-item cursor-pointer min-h-[34px] min-w-[34px] flex items-center justify-center ${theme === 'midnight' ? 'active' : ''}`}
             >
               <Flame className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => onThemeChange('light')}
               title="Light Appearance"
-              className={`apple-segmented-item cursor-pointer ${theme === 'light' ? 'active' : ''}`}
+              className={`apple-segmented-item cursor-pointer min-h-[34px] min-w-[34px] flex items-center justify-center ${theme === 'light' ? 'active' : ''}`}
             >
               <Sun className="w-3.5 h-3.5" />
             </button>
@@ -111,7 +113,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             target="_blank"
             rel="noopener noreferrer"
             title="Star on GitHub"
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-medium bg-white/5 border border-white/10 text-[var(--text-primary)] hover:border-white/20 transition-all active:scale-95"
+            className="flex items-center gap-1.5 px-2.5 py-2 rounded-xl text-xs font-medium bg-white/5 border border-white/10 text-[var(--text-primary)] hover:border-white/20 transition-all active:scale-95 min-h-[40px]"
           >
             <GithubIcon className="w-3.5 h-3.5" />
             <span className="hidden md:inline font-mono">Star</span>

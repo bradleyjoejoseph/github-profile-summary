@@ -65,24 +65,25 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-4 pt-7 pb-2">
+    <div className="w-full max-w-4xl mx-auto px-3.5 sm:px-4 pt-4 sm:pt-7 pb-2">
       {/* macOS Spotlight Inspired Search Bar */}
       <form onSubmit={handleSubmit} className="relative group">
-        <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-[#2997ff]/20 via-[#58a6ff]/20 to-[#a855f7]/20 blur-md opacity-40 group-hover:opacity-75 transition duration-300" />
-        <div className="relative flex items-center bg-[#161b22]/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl overflow-hidden px-2">
-          <div className="pl-3 text-[#8b949e]">
+        <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-[#2997ff]/20 via-[#58a6ff]/20 to-[#a855f7]/20 blur-md opacity-40 group-hover:opacity-75 transition duration-300 pointer-events-none" />
+        <div className="relative flex items-center bg-[#161b22]/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl overflow-hidden pl-3 pr-1.5 min-h-[50px]">
+          <div className="text-[#8b949e] shrink-0">
             <Search className="w-4 h-4" />
           </div>
           <input
             type="text"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            placeholder="Search any GitHub developer (e.g. bradleyjoejoseph, torvalds, antfu)..."
-            className="w-full py-3.5 pl-3 pr-4 bg-transparent text-[var(--text-primary)] placeholder-[#6e7681] text-sm focus:outline-hidden"
+            placeholder="Search GitHub developer..."
+            className="w-full py-3 pl-2.5 pr-2 bg-transparent text-[var(--text-primary)] placeholder-[#6e7681] text-base sm:text-sm focus:outline-hidden min-h-[44px]"
             disabled={isLoading}
             autoCapitalize="none"
             autoCorrect="off"
             spellCheck="false"
+            enterKeyHint="search"
           />
 
           {/* Clear button */}
@@ -90,24 +91,25 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             <button
               type="button"
               onClick={handleClear}
-              className="p-1 mr-1 text-[#8b949e] hover:text-[#f0f6fc] rounded-lg hover:bg-white/10 transition-colors"
+              className="min-h-[44px] min-w-[36px] flex items-center justify-center text-[#8b949e] hover:text-[#f0f6fc] rounded-lg transition-colors cursor-pointer"
               title="Clear input"
+              aria-label="Clear search input"
             >
               <X className="w-4 h-4" />
             </button>
           )}
 
           {/* Action Button */}
-          <div className="pr-1 flex items-center gap-1.5">
+          <div className="shrink-0">
             <button
               type="submit"
               disabled={isLoading || !inputValue.trim()}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl font-semibold text-xs bg-[#2997ff] hover:bg-[#3ea3ff] disabled:opacity-50 text-white shadow-md transition-all active:scale-95"
+              className="min-h-[40px] px-3.5 sm:px-4 flex items-center justify-center gap-1.5 rounded-xl font-bold text-xs bg-[#2997ff] hover:bg-[#3ea3ff] disabled:opacity-50 text-white shadow-md transition-all active:scale-95 cursor-pointer"
             >
               {isLoading ? (
                 <>
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  <span>Analyzing...</span>
+                  <span className="hidden sm:inline">Analyzing...</span>
                 </>
               ) : (
                 <>
@@ -120,10 +122,10 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         </div>
       </form>
 
-      {/* Preset Capsules */}
-      <div className="mt-3.5 flex flex-wrap items-center gap-1.5 text-xs">
-        <span className="text-[#8b949e] font-medium flex items-center gap-1 mr-1">
-          <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Presets:
+      {/* Preset Capsules - Horizontal Smooth Scroll Tray on Mobile */}
+      <div className="mt-3 flex items-center gap-1.5 text-xs overflow-x-auto no-scrollbar py-1 -mx-3.5 px-3.5 sm:mx-0 sm:px-0 sm:flex-wrap">
+        <span className="text-[#8b949e] font-semibold flex items-center gap-1 shrink-0 mr-1 text-[11px]">
+          <Sparkles className="w-3 h-3 text-amber-400" /> Presets:
         </span>
         {PRESETS.map((preset) => {
           const isCurrent =
@@ -132,11 +134,11 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             <button
               key={preset.username}
               onClick={() => handlePresetClick(preset.username)}
-              className={`px-3 py-1 rounded-full transition-all flex items-center gap-1 font-medium text-[11px] ${
+              className={`min-h-[34px] px-3 py-1 rounded-full transition-all flex items-center gap-1 font-medium text-[11px] shrink-0 active:scale-95 cursor-pointer ${
                 preset.featured
                   ? 'bg-blue-500/15 text-[#2997ff] border border-blue-500/30 hover:bg-blue-500/25 shadow-xs'
                   : isCurrent
-                  ? 'bg-[#2997ff] text-white'
+                  ? 'bg-[#2997ff] text-white font-bold'
                   : 'bg-white/5 border border-white/5 text-[#8b949e] hover:text-[#f0f6fc] hover:border-white/15'
               }`}
             >
@@ -154,7 +156,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
               <button
                 key={item}
                 onClick={() => handlePresetClick(item)}
-                className="underline hover:text-[#f0f6fc]"
+                className="underline hover:text-[#f0f6fc] cursor-pointer"
               >
                 {item}
               </button>

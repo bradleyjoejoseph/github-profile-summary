@@ -11,6 +11,7 @@ import { RepoExplorer } from './components/RepoExplorer';
 import { LeaderboardPage } from './components/LeaderboardPage';
 import { CompareModal } from './components/CompareModal';
 import { ExportCardModal } from './components/ExportCardModal';
+import { MobileTabBar } from './components/MobileTabBar';
 import { Footer } from './components/Footer';
 import { fetchUserSummary, syncLeaderboardEntries } from './services/githubApi';
 import { BRADLEY_DEMO_DATA } from './services/mockData';
@@ -236,7 +237,7 @@ export function App() {
         }}
       />
 
-      <main className="flex-1 pb-16">
+      <main className="flex-1 pb-28 sm:pb-16">
         {activePage === 'leaderboard' ? (
           <LeaderboardPage
             profiles={leaderboardProfiles}
@@ -362,21 +363,33 @@ export function App() {
       {/* Footer */}
       <Footer />
 
-      {summary && (
-        <>
-          <CompareModal
-            isOpen={isCompareModalOpen}
-            onClose={() => setIsCompareModalOpen(false)}
-            currentUser={summary}
-            initialOpponentLogin={compareOpponent}
-          />
+      {/* Floating Bottom Tab Bar on Mobile */}
+      <MobileTabBar
+        activePage={activePage}
+        onChangePage={handleChangePage}
+        onOpenCompareModal={() => {
+          setCompareOpponent(null);
+          setIsCompareModalOpen(true);
+        }}
+        theme={theme}
+        onThemeChange={setTheme}
+      />
 
-          <ExportCardModal
-            isOpen={isExportCardModalOpen}
-            onClose={() => setIsExportCardModalOpen(false)}
-            summary={summary}
-          />
-        </>
+      {(summary || leaderboardProfiles[0]) && (
+        <CompareModal
+          isOpen={isCompareModalOpen}
+          onClose={() => setIsCompareModalOpen(false)}
+          currentUser={summary || leaderboardProfiles[0]}
+          initialOpponentLogin={compareOpponent}
+        />
+      )}
+
+      {summary && (
+        <ExportCardModal
+          isOpen={isExportCardModalOpen}
+          onClose={() => setIsExportCardModalOpen(false)}
+          summary={summary}
+        />
       )}
     </div>
   );

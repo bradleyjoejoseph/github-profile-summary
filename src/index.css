@@ -135,6 +135,27 @@
   background: rgba(255, 255, 255, 0.28);
 }
 
+/* Touch-optimized horizontal scrolling tray (iOS smooth inertia) */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Remove tap highlight on mobile for clean native feel */
+button, a, input, select {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Safe area padding for modern iPhones with notch / dynamic island */
+.pb-safe {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom, 1rem));
+}
+
 /* Compositor-thread animations & Reduced Motion Custom Property */
 @property --animation-reduced {
   syntax: "*";

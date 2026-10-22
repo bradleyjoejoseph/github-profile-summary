@@ -84,9 +84,9 @@ export const MetricCards: React.FC<MetricCardsProps> = ({ summary }) => {
   ];
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-5">
+    <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 mt-4 sm:mt-5">
       {/* Section Header */}
-      <div className="flex items-center justify-between mb-3 px-1">
+      <div className="flex items-center justify-between mb-2.5 px-1">
         <span className="text-[11px] font-semibold uppercase tracking-wider text-[#8b949e]">
           Core GitHub Statistics
         </span>
@@ -95,22 +95,22 @@ export const MetricCards: React.FC<MetricCardsProps> = ({ summary }) => {
         </span>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-3.5">
         {cards.map((card, idx) => {
           const Icon = card.icon;
           return (
             <div
               key={idx}
-              className="apple-card p-5 group flex flex-col justify-between"
+              className="apple-card p-3 sm:p-5 group flex flex-col justify-between"
             >
-              <div className="flex items-start justify-between">
-                <div>
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-[#8b949e]">
+              <div className="flex items-start justify-between gap-1.5">
+                <div className="min-w-0">
+                  <span className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-[#8b949e] block truncate">
                     {card.title}
                   </span>
-                  <div className="flex items-center mt-2">
+                  <div className="flex items-center mt-1 sm:mt-2 min-w-0">
                     {card.customBadge}
-                    <span className="text-xl sm:text-2xl font-bold font-mono tracking-tight text-[var(--text-primary)]">
+                    <span className="text-base sm:text-2xl font-bold font-mono tracking-tight text-[var(--text-primary)] truncate">
                       {card.value}
                     </span>
                   </div>
@@ -118,13 +118,13 @@ export const MetricCards: React.FC<MetricCardsProps> = ({ summary }) => {
 
                 {/* Apple squircle capsule for icon */}
                 <div
-                  className={`w-10 h-10 rounded-2xl border flex items-center justify-center shrink-0 ${card.iconBg} ${card.iconColor} group-hover:scale-105 transition-transform shadow-xs`}
+                  className={`w-7 h-7 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl border flex items-center justify-center shrink-0 ${card.iconBg} ${card.iconColor} group-hover:scale-105 transition-transform shadow-xs`}
                 >
-                  <Icon className="w-4 h-4" />
+                  <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </div>
               </div>
 
-              <p className="mt-3 text-xs text-[#8b949e] font-mono truncate">
+              <p className="mt-2 sm:mt-3 text-[10px] sm:text-xs text-[#8b949e] font-mono truncate">
                 {card.subtitle}
               </p>
             </div>
