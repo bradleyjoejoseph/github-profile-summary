@@ -90,6 +90,12 @@ export interface RateLimitInfo {
   reset: number;
 }
 
+export interface ContributionDay {
+  date: string;
+  count: number;
+  level: number;
+}
+
 export interface UserSummaryData {
   user: GitHubUser;
   repos: GitHubRepo[];
@@ -104,5 +110,6 @@ export interface UserSummaryData {
   sourceReposCount: number;
   forkedReposCount: number;
   totalContributions?: number;
+  contributions?: ContributionDay[];
   cachedAt?: number;
 }

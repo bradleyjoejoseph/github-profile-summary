@@ -259,7 +259,7 @@ export const ProfileHero: React.FC<ProfileHeroProps> = ({
         </div>
 
         {/* GitPulse Score Banner */}
-        <div className="mt-6 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#0d1117]/90 via-[#161b22]/90 to-[#0d1117]/90 border border-white/10 relative overflow-hidden">
+        <div className="mt-6 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[var(--bg-secondary)] via-[var(--bg-surface)] to-[var(--bg-secondary)] border border-[var(--border-subtle)] relative overflow-hidden">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#2997ff] to-purple-500 flex items-center justify-center text-white shadow-lg shadow-blue-500/25 shrink-0">
@@ -272,11 +272,11 @@ export const ProfileHero: React.FC<ProfileHeroProps> = ({
                   </span>
                 </div>
                 <div className="flex items-baseline gap-2.5 mt-0.5">
-                  <span className="text-2xl sm:text-3xl font-extrabold font-mono tracking-tight text-white">
+                  <span className="text-2xl sm:text-3xl font-extrabold font-mono tracking-tight text-[var(--text-primary)]">
                     {animatedScore.toLocaleString()}
                   </span>
                   <span className="text-xs font-bold font-mono text-[#2997ff]">GP</span>
-                  <span className="text-xs text-[#8b949e] hidden sm:inline">
+                  <span className="text-xs text-[var(--text-secondary)] hidden sm:inline">
                     • Based on Commits, Stars, Forks, Followers & Repositories
                   </span>
                 </div>
@@ -285,7 +285,7 @@ export const ProfileHero: React.FC<ProfileHeroProps> = ({
 
             <button
               onClick={() => setShowBreakdown(!showBreakdown)}
-              className="flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-white/5 hover:bg-white/10 border border-white/10 text-[var(--text-primary)] transition-all cursor-pointer self-start sm:self-center"
+              className="flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-[var(--bg-surface)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-subtle)] text-[var(--text-primary)] transition-all cursor-pointer self-start sm:self-center"
             >
               <span>Score Weightings</span>
               {showBreakdown ? (
@@ -297,7 +297,7 @@ export const ProfileHero: React.FC<ProfileHeroProps> = ({
           </div>
 
           {/* Multi-Segment Composition Bar */}
-          <div className="mt-3.5 h-2 w-full rounded-full bg-black/50 overflow-hidden flex gap-0.5 p-0.5 border border-white/5">
+          <div className="mt-3.5 h-2 w-full rounded-full bg-[var(--bg-surface)] overflow-hidden flex gap-0.5 p-0.5 border border-[var(--border-subtle)]">
             {gpResult.breakdown.map((item) => {
               const pct = Math.max(4, (item.points / Math.max(1, gpResult.totalScore)) * 100);
               return (
@@ -313,15 +313,15 @@ export const ProfileHero: React.FC<ProfileHeroProps> = ({
 
           {/* Expandable Weighting Breakdown */}
           {showBreakdown && (
-            <div className="mt-4 pt-4 border-t border-white/10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 battle-round-slide-down">
+            <div className="mt-4 pt-4 border-t border-[var(--border-subtle)] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 battle-round-slide-down">
               {gpResult.breakdown.map((item) => (
                 <div
                   key={item.id}
-                  className="p-3 rounded-xl bg-black/40 border border-white/5 flex flex-col justify-between"
+                  className="p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] flex flex-col justify-between"
                 >
                   <div>
                     <div className="flex items-center justify-between gap-1">
-                      <span className="text-[11px] font-semibold text-white truncate">
+                      <span className="text-[11px] font-semibold text-[var(--text-primary)] truncate">
                         {item.label}
                       </span>
                       <span
@@ -329,15 +329,15 @@ export const ProfileHero: React.FC<ProfileHeroProps> = ({
                         style={{ backgroundColor: item.color }}
                       />
                     </div>
-                    <p className="text-[10px] text-[#8b949e] mt-0.5 truncate">
+                    <p className="text-[10px] text-[var(--text-secondary)] mt-0.5 truncate">
                       {item.rawDisplay}
                     </p>
                   </div>
-                  <div className="mt-2.5 pt-2 border-t border-white/5 flex items-baseline justify-between">
+                  <div className="mt-2.5 pt-2 border-t border-[var(--border-subtle)] flex items-baseline justify-between">
                     <span className="text-sm font-bold font-mono" style={{ color: item.color }}>
                       +{item.points.toLocaleString()} GP
                     </span>
-                    <span className="text-[9px] font-mono text-[#6e7681]">
+                    <span className="text-[9px] font-mono text-[var(--text-tertiary)]">
                       {item.weightLabel}
                     </span>
                   </div>
@@ -349,32 +349,32 @@ export const ProfileHero: React.FC<ProfileHeroProps> = ({
 
         {/* macOS Control Center Ribbon - Key GitHub Impact Stats */}
         <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3.5">
-          <div className="p-3 rounded-2xl bg-black/30 border border-white/5 text-center">
-            <span className="text-[11px] text-[#8b949e] uppercase font-semibold tracking-wider flex items-center justify-center gap-1">
+          <div className="p-3 rounded-2xl bg-[var(--bg-surface)]/70 border border-[var(--border-subtle)] text-center">
+            <span className="text-[11px] text-[var(--text-secondary)] uppercase font-semibold tracking-wider flex items-center justify-center gap-1">
               <GitCommitHorizontal className="w-3.5 h-3.5 text-emerald-400" /> Total Commits
             </span>
             <p className="text-xl sm:text-2xl font-bold font-mono text-emerald-400 mt-1">
               {gpResult.metrics.totalCommits.toLocaleString()}
             </p>
           </div>
-          <div className="p-3 rounded-2xl bg-black/30 border border-white/5 text-center">
-            <span className="text-[11px] text-[#8b949e] uppercase font-semibold tracking-wider flex items-center justify-center gap-1">
+          <div className="p-3 rounded-2xl bg-[var(--bg-surface)]/70 border border-[var(--border-subtle)] text-center">
+            <span className="text-[11px] text-[var(--text-secondary)] uppercase font-semibold tracking-wider flex items-center justify-center gap-1">
               <BookOpen className="w-3 h-3 text-[#2997ff]" /> Public Repos
             </span>
             <p className="text-xl sm:text-2xl font-bold font-mono text-[var(--text-primary)] mt-1">
               {user.public_repos.toLocaleString()}
             </p>
           </div>
-          <div className="p-3 rounded-2xl bg-black/30 border border-white/5 text-center">
-            <span className="text-[11px] text-[#8b949e] uppercase font-semibold tracking-wider flex items-center justify-center gap-1">
+          <div className="p-3 rounded-2xl bg-[var(--bg-surface)]/70 border border-[var(--border-subtle)] text-center">
+            <span className="text-[11px] text-[var(--text-secondary)] uppercase font-semibold tracking-wider flex items-center justify-center gap-1">
               <Calendar className="w-3 h-3 text-purple-400" /> Years Active
             </span>
             <p className="text-xl sm:text-2xl font-bold font-mono text-purple-400 mt-1">
               {yearsOnGithub}y+ Active
             </p>
           </div>
-          <div className="p-3 rounded-2xl bg-black/30 border border-white/5 text-center">
-            <span className="text-[11px] text-[#8b949e] uppercase font-semibold tracking-wider flex items-center justify-center gap-1">
+          <div className="p-3 rounded-2xl bg-[var(--bg-surface)]/70 border border-[var(--border-subtle)] text-center">
+            <span className="text-[11px] text-[var(--text-secondary)] uppercase font-semibold tracking-wider flex items-center justify-center gap-1">
               {totalStars > 0 ? (
                 <>
                   <Star className="w-3 h-3 text-amber-400" /> Total Stars

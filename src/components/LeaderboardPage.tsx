@@ -188,12 +188,12 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
                 </span>
               </div>
             </div>
-            <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">
+            <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-[var(--text-primary)]">
               GitPulse Leaderboards
             </h1>
-            <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm text-[#8b949e] max-w-2xl leading-relaxed">
+            <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm text-[var(--text-secondary)] max-w-2xl leading-relaxed">
               Developers ranked by their <span className="text-[#2997ff] font-semibold">GitPulse Score</span> and real-world impact across{' '}
-              <span className="text-white font-medium">Stars, Commits, Forks, Followers, and Repositories</span>.
+              <span className="text-[var(--text-primary)] font-medium">Stars, Commits, Forks, Followers, and Repositories</span>.
             </p>
           </div>
 
@@ -205,7 +205,7 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
                 value={newUsername}
                 onChange={(e) => setNewUsername(e.target.value)}
                 placeholder="Add GitHub username..."
-                className="flex-1 py-2.5 px-3.5 rounded-xl bg-black/50 border border-white/12 text-base sm:text-sm text-white placeholder-[#6e7681] focus:outline-hidden focus:border-[#2997ff] min-h-[44px]"
+                className="flex-1 py-2.5 px-3.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-base sm:text-sm text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-hidden focus:border-[#2997ff] min-h-[44px]"
                 autoCapitalize="none"
                 autoCorrect="off"
                 spellCheck="false"
@@ -227,7 +227,7 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
             {addError && (
               <p className="text-xs text-red-400 mt-1.5">{addError}</p>
             )}
-            <div className="mt-2.5 flex items-center justify-between gap-3 text-[11px] text-[#8b949e]">
+            <div className="mt-2.5 flex items-center justify-between gap-3 text-[11px] text-[var(--text-secondary)]">
               <div className="flex items-center gap-2.5">
                 <span>Ranked Roster: {enrichedProfiles.length} Developers</span>
                 {onSyncLeaderboard && (
@@ -376,7 +376,7 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
               className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                 active
                   ? 'bg-[#2997ff] text-white shadow-lg shadow-blue-500/25'
-                  : 'bg-[#161b22]/80 text-[#8b949e] hover:text-white border border-white/8'
+                  : 'bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]'
               }`}
             >
               {cat.icon}
@@ -404,7 +404,7 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
             >
               <div>
                 <div className="flex items-center justify-between gap-2 mb-4">
-                  <span className="px-2.5 py-1 rounded-full text-xs font-extrabold bg-black/50 text-white border border-white/10">
+                  <span className="px-2.5 py-1 rounded-full text-xs font-extrabold bg-[var(--bg-surface)] text-[var(--text-primary)] border border-[var(--border-subtle)]">
                     {badgeLabels[idx]}
                   </span>
                   <span
@@ -426,13 +426,13 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
                     className="w-14 h-14 rounded-2xl border-2 border-white/20 object-cover shadow-md"
                   />
                   <div className="min-w-0">
-                    <h3 className="text-base font-extrabold text-white truncate">
+                    <h3 className="text-base font-extrabold text-[var(--text-primary)] truncate">
                       {entry.summary.user.name || entry.summary.user.login}
                     </h3>
                     <p className="text-xs font-mono text-[#2997ff] truncate">
                       @{entry.summary.user.login}
                     </p>
-                    <p className="text-[11px] text-[#8b949e] truncate mt-0.5">
+                    <p className="text-[11px] text-[var(--text-secondary)] truncate mt-0.5">
                       Primary: {entry.summary.primaryLanguage}
                     </p>
                   </div>
@@ -503,7 +503,7 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
         </div>
 
         {/* Mobile Responsive Standings List (Apple iOS Card Layout) */}
-        <div className="sm:hidden divide-y divide-white/8">
+        <div className="sm:hidden divide-y divide-[var(--border-subtle)]">
           {sortedEntries.map((entry, idx) => {
             const rank = idx + 1;
             const isCurrentUser =
@@ -519,7 +519,7 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
                 <div className="flex items-center justify-between gap-2 mb-3">
                   {/* Rank Badge */}
                   <div className="flex items-center gap-2">
-                    <span className="font-mono font-black text-xs px-2.5 py-1 rounded-lg bg-black/60 border border-white/10 text-white">
+                    <span className="font-mono font-black text-xs px-2.5 py-1 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-[var(--text-primary)]">
                       {rank === 1 ? '🥇 #1' : rank === 2 ? '🥈 #2' : rank === 3 ? '🥉 #3' : `#${rank}`}
                     </span>
                     <span
@@ -536,7 +536,7 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
 
                   {/* Active Category Metric Highlight */}
                   <span
-                    className="text-xs font-mono font-extrabold px-2.5 py-1 rounded-full bg-black/60 border"
+                    className="text-xs font-mono font-extrabold px-2.5 py-1 rounded-full bg-[var(--bg-surface)] border"
                     style={{
                       color: currentCat.accentColor,
                       borderColor: `${currentCat.accentColor}40`,
@@ -552,11 +552,11 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
                     <img
                       src={entry.summary.user.avatar_url}
                       alt={entry.summary.user.login}
-                      className="w-11 h-11 rounded-xl border border-white/15 object-cover shrink-0"
+                      className="w-11 h-11 rounded-xl border border-[var(--border-subtle)] object-cover shrink-0"
                     />
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <span className="font-bold text-sm text-white truncate">
+                        <span className="font-bold text-sm text-[var(--text-primary)] truncate">
                           {entry.summary.user.name || entry.summary.user.login}
                         </span>
                         {isCurrentUser && (
@@ -565,17 +565,17 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
                           </span>
                         )}
                       </div>
-                      <span className="text-xs font-mono text-[#8b949e] truncate block">
+                      <span className="text-xs font-mono text-[var(--text-secondary)] truncate block">
                         @{entry.summary.user.login}
                       </span>
                     </div>
                   </div>
 
                   <div className="text-right shrink-0">
-                    <span className="text-[10px] font-mono uppercase text-[#8b949e] font-bold block">
+                    <span className="text-[10px] font-mono uppercase text-[var(--text-secondary)] font-bold block">
                       Score
                     </span>
-                    <span className="text-sm font-black font-mono text-white flex items-center justify-end gap-1">
+                    <span className="text-sm font-black font-mono text-[var(--text-primary)] flex items-center justify-end gap-1">
                       <Zap className="w-3 h-3 text-amber-400 shrink-0" />
                       {entry.gp.totalScore.toLocaleString()} GP
                     </span>
@@ -583,17 +583,17 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
                 </div>
 
                 {/* Secondary Key Stats Row */}
-                <div className="mt-3 grid grid-cols-3 gap-1.5 text-center text-[10px] font-mono bg-black/40 p-2 rounded-xl border border-white/5">
+                <div className="mt-3 grid grid-cols-3 gap-1.5 text-center text-[10px] font-mono bg-[var(--bg-surface)]/70 p-2 rounded-xl border border-[var(--border-subtle)]">
                   <div>
-                    <span className="text-[#8b949e] block">Stars</span>
+                    <span className="text-[var(--text-secondary)] block">Stars</span>
                     <span className="font-bold text-amber-400">★ {entry.gp.metrics.totalStars.toLocaleString()}</span>
                   </div>
                   <div>
-                    <span className="text-[#8b949e] block">Commits</span>
+                    <span className="text-[var(--text-secondary)] block">Commits</span>
                     <span className="font-bold text-emerald-400">{entry.gp.metrics.totalCommits.toLocaleString()}</span>
                   </div>
                   <div>
-                    <span className="text-[#8b949e] block">Repos</span>
+                    <span className="text-[var(--text-secondary)] block">Repos</span>
                     <span className="font-bold text-cyan-400">{entry.gp.metrics.publicRepos.toLocaleString()}</span>
                   </div>
                 </div>
@@ -623,7 +623,7 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
         <div className="hidden sm:block overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-white/8 text-[11px] font-bold uppercase tracking-wider text-[#8b949e] bg-black/20">
+              <tr className="border-b border-[var(--border-subtle)] text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)] bg-[var(--bg-surface)]/60">
                 <th className="py-3.5 px-4 w-16">Rank</th>
                 <th className="py-3.5 px-4">Developer</th>
                 <th className="py-3.5 px-4">GitPulse Score</th>
@@ -635,7 +635,7 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
                 <th className="py-3.5 px-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5 text-xs sm:text-sm">
+            <tbody className="divide-y divide-[var(--border-subtle)] text-xs sm:text-sm">
               {sortedEntries.map((entry, idx) => {
                 const rank = idx + 1;
                 const isCurrentUser =
@@ -647,7 +647,7 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
                     className={`transition-colors ${
                       isCurrentUser
                         ? 'bg-[#2997ff]/10 hover:bg-[#2997ff]/15'
-                        : 'hover:bg-white/[0.03]'
+                        : 'hover:bg-[var(--bg-surface-hover)]'
                     }`}
                   >
                     <td className="py-3.5 px-4 font-mono font-extrabold">
@@ -658,7 +658,7 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
                       ) : rank === 3 ? (
                         <span className="text-amber-600 text-base">🥉 #3</span>
                       ) : (
-                        <span className="text-[#8b949e]">#{rank}</span>
+                        <span className="text-[var(--text-secondary)]">#{rank}</span>
                       )}
                     </td>
 
@@ -667,11 +667,11 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
                         <img
                           src={entry.summary.user.avatar_url}
                           alt={entry.summary.user.login}
-                          className="w-9 h-9 rounded-xl border border-white/15 object-cover"
+                          className="w-9 h-9 rounded-xl border border-[var(--border-subtle)] object-cover"
                         />
                         <div>
                           <div className="flex items-center gap-1.5">
-                            <span className="font-bold text-white">
+                            <span className="font-bold text-[var(--text-primary)]">
                               {entry.summary.user.name || entry.summary.user.login}
                             </span>
                             {isCurrentUser && (
@@ -680,7 +680,7 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
                               </span>
                             )}
                           </div>
-                          <span className="text-xs font-mono text-[#8b949e]">
+                          <span className="text-xs font-mono text-[var(--text-secondary)]">
                             @{entry.summary.user.login}
                           </span>
                         </div>
@@ -688,7 +688,7 @@ export const LeaderboardPage: React.FC<LeaderboardPageProps> = ({
                     </td>
 
                     <td className="py-3.5 px-4">
-                      <div className="flex items-center gap-1.5 font-mono font-extrabold text-white">
+                      <div className="flex items-center gap-1.5 font-mono font-extrabold text-[var(--text-primary)]">
                         <Zap className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                         <span>{entry.gp.totalScore.toLocaleString()} GP</span>
                       </div>

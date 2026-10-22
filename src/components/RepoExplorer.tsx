@@ -73,13 +73,13 @@ export const RepoExplorer: React.FC<RepoExplorerProps> = ({ repos }) => {
           <div className="flex flex-wrap items-center gap-2">
             {/* Search Input */}
             <div className="relative flex-1 sm:w-56">
-              <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#8b949e]" />
+              <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Filter repositories..."
-                className="w-full py-1.5 pl-8 pr-3 rounded-xl bg-black/40 border border-white/10 text-xs text-[var(--text-primary)] placeholder-[#6e7681] focus:outline-hidden focus:border-[#2997ff]"
+                className="w-full py-1.5 pl-8 pr-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-xs text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-hidden focus:border-[#2997ff]"
               />
             </div>
 
@@ -88,7 +88,7 @@ export const RepoExplorer: React.FC<RepoExplorerProps> = ({ repos }) => {
               <select
                 value={selectedLanguage}
                 onChange={(e) => setSelectedLanguage(e.target.value)}
-                className="py-1.5 px-3 rounded-xl bg-black/40 border border-white/10 text-xs text-[var(--text-primary)] focus:outline-hidden focus:border-[#2997ff] cursor-pointer"
+                className="py-1.5 px-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-xs text-[var(--text-primary)] focus:outline-hidden focus:border-[#2997ff] cursor-pointer"
               >
                 <option value="all">All Languages</option>
                 {languages.map((lang) => (
@@ -104,7 +104,7 @@ export const RepoExplorer: React.FC<RepoExplorerProps> = ({ repos }) => {
               <select
                 value={filterType}
                 onChange={(e) => setFilterType(e.target.value as any)}
-                className="py-1.5 px-3 rounded-xl bg-black/40 border border-white/10 text-xs text-[var(--text-primary)] focus:outline-hidden focus:border-[#2997ff] cursor-pointer"
+                className="py-1.5 px-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-xs text-[var(--text-primary)] focus:outline-hidden focus:border-[#2997ff] cursor-pointer"
               >
                 <option value="all">All Types</option>
                 <option value="sources">Sources Only</option>
@@ -117,7 +117,7 @@ export const RepoExplorer: React.FC<RepoExplorerProps> = ({ repos }) => {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
-                className="py-1.5 px-3 rounded-xl bg-black/40 border border-white/10 text-xs text-[var(--text-primary)] focus:outline-hidden focus:border-[#2997ff] cursor-pointer"
+                className="py-1.5 px-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-xs text-[var(--text-primary)] focus:outline-hidden focus:border-[#2997ff] cursor-pointer"
               >
                 <option value="stars">Sort by Stars</option>
                 <option value="forks">Sort by Forks</option>

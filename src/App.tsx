@@ -7,6 +7,7 @@ import { MetricCards } from './components/MetricCards';
 import { LanguageBreakdown } from './components/LanguageBreakdown';
 import { RepoAnalytics } from './components/RepoAnalytics';
 import { CommitPunchcard } from './components/CommitPunchcard';
+import { CommitCalendar } from './components/CommitCalendar';
 import { RepoExplorer } from './components/RepoExplorer';
 import { LeaderboardPage } from './components/LeaderboardPage';
 import { CompareModal } from './components/CompareModal';
@@ -334,6 +335,13 @@ export function App() {
 
                 {/* KPI Metric Ribbon */}
                 <MetricCards summary={summary} />
+
+                {/* GitHub Contribution Calendar Heatmap */}
+                <CommitCalendar
+                  contributions={summary.contributions}
+                  totalContributions={summary.totalContributions}
+                  username={summary.user.login}
+                />
 
                 {/* Analytics Grid */}
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">

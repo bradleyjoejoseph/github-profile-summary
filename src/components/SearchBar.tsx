@@ -69,8 +69,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({
       {/* macOS Spotlight Inspired Search Bar */}
       <form onSubmit={handleSubmit} className="relative group">
         <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-[#2997ff]/20 via-[#58a6ff]/20 to-[#a855f7]/20 blur-md opacity-40 group-hover:opacity-75 transition duration-300 pointer-events-none" />
-        <div className="relative flex items-center bg-[#161b22]/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl overflow-hidden pl-3 pr-1.5 min-h-[50px]">
-          <div className="text-[#8b949e] shrink-0">
+        <div className="relative flex items-center bg-[var(--bg-card)] backdrop-blur-xl border border-[var(--border-color)] rounded-2xl shadow-xl overflow-hidden pl-3 pr-1.5 min-h-[50px]">
+          <div className="text-[var(--text-secondary)] shrink-0">
             <Search className="w-4 h-4" />
           </div>
           <input
@@ -78,7 +78,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             placeholder="Search GitHub developer..."
-            className="w-full py-3 pl-2.5 pr-2 bg-transparent text-[var(--text-primary)] placeholder-[#6e7681] text-base sm:text-sm focus:outline-hidden min-h-[44px]"
+            className="w-full py-3 pl-2.5 pr-2 bg-transparent text-[var(--text-primary)] placeholder-[var(--text-tertiary)] text-base sm:text-sm focus:outline-hidden min-h-[44px]"
             disabled={isLoading}
             autoCapitalize="none"
             autoCorrect="off"
@@ -91,7 +91,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             <button
               type="button"
               onClick={handleClear}
-              className="min-h-[44px] min-w-[36px] flex items-center justify-center text-[#8b949e] hover:text-[#f0f6fc] rounded-lg transition-colors cursor-pointer"
+              className="min-h-[44px] min-w-[36px] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-lg transition-colors cursor-pointer"
               title="Clear input"
               aria-label="Clear search input"
             >
@@ -124,7 +124,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
 
       {/* Preset Capsules - Horizontal Smooth Scroll Tray on Mobile */}
       <div className="mt-3 flex items-center gap-1.5 text-xs overflow-x-auto no-scrollbar py-1 -mx-3.5 px-3.5 sm:mx-0 sm:px-0 sm:flex-wrap">
-        <span className="text-[#8b949e] font-semibold flex items-center gap-1 shrink-0 mr-1 text-[11px]">
+        <span className="text-[var(--text-secondary)] font-semibold flex items-center gap-1 shrink-0 mr-1 text-[11px]">
           <Sparkles className="w-3 h-3 text-amber-400" /> Presets:
         </span>
         {PRESETS.map((preset) => {
@@ -139,7 +139,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
                   ? 'bg-blue-500/15 text-[#2997ff] border border-blue-500/30 hover:bg-blue-500/25 shadow-xs'
                   : isCurrent
                   ? 'bg-[#2997ff] text-white font-bold'
-                  : 'bg-white/5 border border-white/5 text-[#8b949e] hover:text-[#f0f6fc] hover:border-white/15'
+                  : 'bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-color)]'
               }`}
             >
               {preset.featured && <span className="text-amber-400 font-bold">★</span>}
@@ -149,14 +149,14 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         })}
 
         {recentSearches.length > 0 && (
-          <div className="hidden lg:flex items-center gap-1.5 ml-auto text-[11px] text-[#6e7681]">
+          <div className="hidden lg:flex items-center gap-1.5 ml-auto text-[11px] text-[var(--text-tertiary)]">
             <History className="w-3 h-3" />
             <span>Recent:</span>
             {recentSearches.slice(0, 3).map((item) => (
               <button
                 key={item}
                 onClick={() => handlePresetClick(item)}
-                className="underline hover:text-[#f0f6fc] cursor-pointer"
+                className="underline hover:text-[var(--text-primary)] cursor-pointer"
               >
                 {item}
               </button>
