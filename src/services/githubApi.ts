@@ -136,6 +136,7 @@ export async function fetchUserSummary(
   let events: GitHubEvent[] = [];
   let totalContributions = 0;
   let rawContributions: ContributionDay[] = [];
+  let yearlyContributions: Record<string, number> = {};
 
   await Promise.all([
     (async () => {
@@ -170,6 +171,7 @@ export async function fetchUserSummary(
         if (contribRes.ok) {
           const contribData = await contribRes.json();
           if (contribData && contribData.total && typeof contribData.total === 'object') {
+            yearlyContributions = contribData.total as Record<string, number>;
             totalContributions = Object.values(contribData.total as Record<string, number>).reduce(
               (sum, val) => sum + (Number(val) || 0),
               0
@@ -290,6 +292,7 @@ export async function fetchUserSummary(
     sourceReposCount,
     forkedReposCount,
     totalContributions,
+    yearlyContributions,
     contributions:
       rawContributions.length > 0
         ? rawContributions

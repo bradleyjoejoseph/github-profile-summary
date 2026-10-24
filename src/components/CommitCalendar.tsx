@@ -1,110 +1,87 @@
-import React, { useState, useMemo } from 'react';
-import { GitCommitHorizontal, Flame, Zap, Info } from 'lucide-react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
+import {
+  GitCommitHorizontal,
+  Flame,
+  Zap,
+  Info,
+  ChevronLeft,
+  ChevronRight,
+  Layers,
+  Calendar as CalendarIcon,
+} from 'lucide-react';
 import type { ContributionDay } from '../types/github';
 
 interface CommitCalendarProps {
   contributions?: ContributionDay[];
   totalContributions?: number;
+  yearlyContributions?: Record<string, number>;
   username: string;
 }
 
-export const CommitCalendar: React.FC<CommitCalendarProps> = ({
-  contributions,
-  totalContributions,
-  username,
+interface YearGridProps {
+  year: string;
+  days: ContributionDay[];
+  yearTotal: number;
+  onHoverDay: (
+    day: { date: string; count: number; level: number; x: number; y: number } | null
+  ) => void;
+  showYearHeader?: boolean;
+}
+
+const getCellColorClass = (level: number) => {
+  switch (level) {
+    case 1:
+      return 'bg-[#0e4429] dark:bg-[#0e4429] border-[#0e4429] text-white';
+    case 2:
+      return 'bg-[#006d32] dark:bg-[#006d32] border-[#006d32] text-white';
+    case 3:
+      return 'bg-[#26a641] dark:bg-[#26a641] border-[#26a641] text-white shadow-xs shadow-green-500/20';
+    case 4:
+      return 'bg-[#39d353] dark:bg-[#39d353] border-[#39d353] text-white shadow-sm shadow-green-400/40';
+    default:
+      return 'bg-[var(--bg-surface)] border-[var(--border-subtle)] opacity-70';
+  }
+};
+
+const formatDate = (dateStr: string) => {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString(undefined, {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+};
+
+/**
+ * Renders a single 52/53-week GitHub contribution grid for a given year.
+ */
+const SingleYearGrid: React.FC<YearGridProps> = ({
+  year,
+  days,
+  yearTotal,
+  onHoverDay,
+  showYearHeader = false,
 }) => {
-  const [hoveredDay, setHoveredDay] = useState<{
-    date: string;
-    count: number;
-    level: number;
-    x: number;
-    y: number;
-  } | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
 
-  // Normalize or generate fallback calendar for 52 weeks (364 or 371 days)
-  const days = useMemo(() => {
-    if (contributions && contributions.length >= 60) {
-      // Sort chronologically
-      return [...contributions].sort(
-        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-      );
-    }
-
-    // Fallback: Generate realistic 52-week calendar based on total
-    const fallbackDays: ContributionDay[] = [];
-    const now = new Date();
-    const countTotal = totalContributions && totalContributions > 0 ? totalContributions : 180;
-    const totalDays = 52 * 7;
-
-    for (let i = totalDays - 1; i >= 0; i--) {
-      const d = new Date(now);
-      d.setDate(d.getDate() - i);
-      const dateStr = d.toISOString().split('T')[0];
-      const dayOfWeek = d.getDay();
-      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-      const seed = (i * 41 + countTotal * 13) % 100;
-
-      let count = 0;
-      let level = 0;
-      if (seed > (isWeekend ? 65 : 30)) {
-        count = (seed % 6) + 1;
-        level = count >= 5 ? 4 : count >= 3 ? 3 : count >= 2 ? 2 : 1;
-      }
-      fallbackDays.push({ date: dateStr, count, level });
-    }
-    return fallbackDays;
-  }, [contributions, totalContributions]);
-
-  // Compute streaks and stats
-  const stats = useMemo(() => {
-    let currentStreak = 0;
-    let longestStreak = 0;
-    let tempStreak = 0;
-    let totalCount = 0;
-    let maxInOneDay = 0;
-
-    // Traverse from oldest to newest for longest streak
-    for (const day of days) {
-      totalCount += day.count;
-      if (day.count > maxInOneDay) maxInOneDay = day.count;
-
-      if (day.count > 0) {
-        tempStreak++;
-        if (tempStreak > longestStreak) longestStreak = tempStreak;
-      } else {
-        tempStreak = 0;
-      }
-    }
-
-    // Traverse backwards from newest to oldest for current streak
-    for (let i = days.length - 1; i >= 0; i--) {
-      if (days[i].count > 0) {
-        currentStreak++;
-      } else {
-        // If today has 0, but yesterday had contributions, continue streak
-        if (i === days.length - 1) continue;
-        break;
-      }
-    }
-
-    return {
-      totalCount: totalContributions && totalContributions > 0 ? totalContributions : totalCount,
-      longestStreak: Math.max(longestStreak, currentStreak),
-      currentStreak,
-      maxInOneDay,
-    };
-  }, [days, totalContributions]);
-
-  // Group days into weeks (columns of 7)
+  // Group days into columns of 7 (Sunday to Saturday)
   const { weeks, monthLabels } = useMemo(() => {
     if (days.length === 0) return { weeks: [], monthLabels: [] };
 
-    const firstDay = new Date(days[0].date);
+    // Sort chronologically
+    const sorted = [...days].sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
+
+    const firstDay = new Date(sorted[0].date);
     const dayOffset = firstDay.getDay(); // 0 is Sunday
 
     // Pad beginning so week starts on Sunday
     const padded: Array<ContributionDay | null> = Array(dayOffset).fill(null);
-    days.forEach((d) => padded.push(d));
+    sorted.forEach((d) => padded.push(d));
 
     // Chunk into columns of 7 days
     const cols: Array<Array<ContributionDay | null>> = [];
@@ -133,30 +110,282 @@ export const CommitCalendar: React.FC<CommitCalendarProps> = ({
     return { weeks: cols, monthLabels: labels };
   }, [days]);
 
-  const getCellColorClass = (level: number) => {
-    switch (level) {
-      case 1:
-        return 'bg-[#0e4429] dark:bg-[#0e4429] border-[#0e4429] text-white';
-      case 2:
-        return 'bg-[#006d32] dark:bg-[#006d32] border-[#006d32] text-white';
-      case 3:
-        return 'bg-[#26a641] dark:bg-[#26a641] border-[#26a641] text-white shadow-xs shadow-green-500/20';
-      case 4:
-        return 'bg-[#39d353] dark:bg-[#39d353] border-[#39d353] text-white shadow-sm shadow-green-400/40';
-      default:
-        return 'bg-[var(--bg-surface)] border-[var(--border-subtle)] opacity-70';
-    }
+  const checkScroll = () => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 10);
+    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 10);
   };
 
-  const formatDate = (dateStr: string) => {
-    const d = new Date(dateStr);
-    return d.toLocaleDateString(undefined, {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
+  useEffect(() => {
+    const el = scrollContainerRef.current;
+    if (el) {
+      // Auto-scroll to rightmost (most recent weeks) on initial mount
+      el.scrollLeft = el.scrollWidth;
+      checkScroll();
+    }
+  }, [weeks]);
+
+  const handleScrollNudge = (direction: 'left' | 'right') => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    const amount = direction === 'left' ? -260 : 260;
+    el.scrollBy({ left: amount, behavior: 'smooth' });
+    setTimeout(checkScroll, 300);
   };
+
+  return (
+    <div className="relative group/grid">
+      {/* Optional Year Header for Stacked Mode */}
+      {showYearHeader && (
+        <div className="flex items-center justify-between mb-2.5 pt-2">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-extrabold font-mono text-[var(--text-primary)] px-2.5 py-0.5 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-subtle)]">
+              {year}
+            </span>
+            <span className="text-xs text-[var(--text-secondary)] font-mono">
+              <span className="font-bold text-[var(--text-primary)]">
+                {yearTotal.toLocaleString()}
+              </span>{' '}
+              contributions in {year}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Left / Right Scroll Arrow Buttons */}
+      <div className="absolute right-0 -top-8 hidden sm:flex items-center gap-1 z-10">
+        <button
+          type="button"
+          onClick={() => handleScrollNudge('left')}
+          disabled={!canScrollLeft}
+          className="p-1 rounded-md bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:opacity-30 cursor-pointer transition-all active:scale-95"
+          title="Scroll left"
+          aria-label="Scroll left"
+        >
+          <ChevronLeft className="w-3.5 h-3.5" />
+        </button>
+        <button
+          type="button"
+          onClick={() => handleScrollNudge('right')}
+          disabled={!canScrollRight}
+          className="p-1 rounded-md bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:opacity-30 cursor-pointer transition-all active:scale-95"
+          title="Scroll right"
+          aria-label="Scroll right"
+        >
+          <ChevronRight className="w-3.5 h-3.5" />
+        </button>
+      </div>
+
+      {/* Visual Scroll Shadow Indicators */}
+      {canScrollLeft && (
+        <div className="absolute left-6 top-6 bottom-2 w-8 bg-gradient-to-r from-[var(--bg-card)] to-transparent pointer-events-none z-10" />
+      )}
+      {canScrollRight && (
+        <div className="absolute right-0 top-6 bottom-2 w-8 bg-gradient-to-l from-[var(--bg-card)] to-transparent pointer-events-none z-10" />
+      )}
+
+      {/* Heatmap Grid Track */}
+      <div
+        ref={scrollContainerRef}
+        onScroll={checkScroll}
+        className="overflow-x-auto pb-2 pt-1 transition-all"
+        style={{
+          scrollbarWidth: 'thin',
+          scrollbarColor: 'var(--border-subtle) transparent',
+        }}
+      >
+        <div className="inline-block min-w-full">
+          {/* Months Header Row */}
+          <div className="flex text-[11px] font-mono text-[var(--text-secondary)] mb-1.5 pl-7 select-none">
+            <div
+              className="relative h-4 w-full"
+              style={{ minWidth: `${Math.max(53, weeks.length) * 14}px` }}
+            >
+              {monthLabels.map((m, i) => (
+                <span
+                  key={`${m.month}-${i}`}
+                  className="absolute font-semibold text-[10px] uppercase tracking-wider"
+                  style={{ left: `${m.colIndex * 14}px` }}
+                >
+                  {m.month}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Grid with Day of Week Axis */}
+          <div className="flex items-start gap-2">
+            {/* Day Labels (Mon, Wed, Fri) */}
+            <div className="flex flex-col justify-between h-[96px] sm:h-[105px] text-[9px] font-mono text-[var(--text-secondary)] pr-1 select-none py-0.5 shrink-0">
+              <span>Mon</span>
+              <span>Wed</span>
+              <span>Fri</span>
+            </div>
+
+            {/* Columns of 7 Squares */}
+            <div className="flex gap-[2.5px] sm:gap-[3px] items-center">
+              {weeks.map((week, colIdx) => (
+                <div key={colIdx} className="flex flex-col gap-[2.5px] sm:gap-[3px]">
+                  {week.map((day, rowIdx) => {
+                    if (!day) {
+                      return (
+                        <div
+                          key={`empty-${rowIdx}`}
+                          className="w-[10px] h-[10px] sm:w-[11.5px] sm:h-[11.5px] rounded-[2.5px] opacity-0 pointer-events-none"
+                        />
+                      );
+                    }
+
+                    const colorClass = getCellColorClass(day.level);
+
+                    return (
+                      <div
+                        key={day.date}
+                        onMouseEnter={(e) => {
+                          const rect = e.currentTarget.getBoundingClientRect();
+                          onHoverDay({
+                            ...day,
+                            x: rect.left + rect.width / 2,
+                            y: rect.top,
+                          });
+                        }}
+                        onMouseLeave={() => onHoverDay(null)}
+                        onClick={() => {
+                          onHoverDay({
+                            ...day,
+                            x: window.innerWidth / 2,
+                            y: 120,
+                          });
+                        }}
+                        className={`w-[10px] h-[10px] sm:w-[11.5px] sm:h-[11.5px] rounded-[2.5px] border cursor-pointer transition-all duration-150 hover:scale-135 hover:z-20 ${colorClass}`}
+                        data-date={day.date}
+                        data-count={day.count}
+                      />
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const CommitCalendar: React.FC<CommitCalendarProps> = ({
+  contributions,
+  totalContributions,
+  yearlyContributions,
+  username,
+}) => {
+  const [hoveredDay, setHoveredDay] = useState<{
+    date: string;
+    count: number;
+    level: number;
+    x: number;
+    y: number;
+  } | null>(null);
+
+  // Group raw contributions into years
+  const { yearGroups, availableYears } = useMemo(() => {
+    const groups: Record<string, ContributionDay[]> = {};
+
+    if (contributions && contributions.length > 0) {
+      contributions.forEach((day) => {
+        const year = day.date.split('-')[0];
+        if (year) {
+          if (!groups[year]) groups[year] = [];
+          groups[year].push(day);
+        }
+      });
+    }
+
+    // Determine available years list (sorted descending: e.g. 2026, 2025, 2024...)
+    let years = Object.keys(groups);
+
+    if (yearlyContributions) {
+      Object.keys(yearlyContributions).forEach((y) => {
+        if (!years.includes(y)) years.push(y);
+      });
+    }
+
+    if (years.length === 0) {
+      const curYear = new Date().getFullYear();
+      years = [curYear.toString(), (curYear - 1).toString(), (curYear - 2).toString()];
+    }
+
+    years.sort((a, b) => Number(b) - Number(a));
+
+    return { yearGroups: groups, availableYears: years };
+  }, [contributions, yearlyContributions]);
+
+  // Selected year state or 'all' for stacked mode
+  const [selectedYear, setSelectedYear] = useState<string>(() => {
+    return availableYears[0] || new Date().getFullYear().toString();
+  });
+
+  // Ensure selected year is in availableYears if roster changes
+  useEffect(() => {
+    if (selectedYear !== 'all' && !availableYears.includes(selectedYear) && availableYears.length > 0) {
+      setSelectedYear(availableYears[0]);
+    }
+  }, [availableYears, selectedYear]);
+
+  // Compute stats for current view
+  const currentDays = useMemo(() => {
+    if (selectedYear === 'all') {
+      return contributions || [];
+    }
+    return yearGroups[selectedYear] || [];
+  }, [selectedYear, yearGroups, contributions]);
+
+  const activeStats = useMemo(() => {
+    let currentStreak = 0;
+    let longestStreak = 0;
+    let tempStreak = 0;
+    let computedTotal = 0;
+
+    // Traverse chronologically
+    const sorted = [...currentDays].sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
+
+    for (const day of sorted) {
+      computedTotal += day.count;
+      if (day.count > 0) {
+        tempStreak++;
+        if (tempStreak > longestStreak) longestStreak = tempStreak;
+      } else {
+        tempStreak = 0;
+      }
+    }
+
+    // Current streak from newest backwards
+    for (let i = sorted.length - 1; i >= 0; i--) {
+      if (sorted[i].count > 0) {
+        currentStreak++;
+      } else {
+        if (i === sorted.length - 1) continue;
+        break;
+      }
+    }
+
+    let displayTotal = computedTotal;
+    if (selectedYear === 'all') {
+      displayTotal =
+        totalContributions && totalContributions > 0 ? totalContributions : computedTotal;
+    } else if (yearlyContributions && yearlyContributions[selectedYear]) {
+      displayTotal = yearlyContributions[selectedYear];
+    }
+
+    return {
+      total: displayTotal,
+      longestStreak: Math.max(longestStreak, currentStreak),
+      currentStreak,
+    };
+  }, [currentDays, selectedYear, totalContributions, yearlyContributions]);
 
   return (
     <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 mt-5 sm:mt-6">
@@ -164,8 +393,8 @@ export const CommitCalendar: React.FC<CommitCalendarProps> = ({
         {/* Subtle Ambient Glow */}
         <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
-        {/* Header Ribbon */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--border-subtle)] pb-4">
+        {/* Header Ribbon with Year Switcher & Dropdown */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 border-b border-[var(--border-subtle)] pb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0 shadow-md shadow-emerald-500/15">
               <GitCommitHorizontal className="w-5 h-5" />
@@ -173,121 +402,160 @@ export const CommitCalendar: React.FC<CommitCalendarProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-base sm:text-lg font-bold text-[var(--text-primary)] tracking-tight">
-                  Contribution Calendar
+                  Contribution Activity
                 </h2>
                 <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                  Past 12 Months
+                  {selectedYear === 'all' ? 'All Years Stacked' : selectedYear}
                 </span>
               </div>
               <p className="text-xs text-[var(--text-secondary)] mt-0.5">
                 <span className="font-semibold text-[var(--text-primary)]">
-                  {stats.totalCount.toLocaleString()}
+                  {activeStats.total.toLocaleString()}
                 </span>{' '}
-                contributions recorded for{' '}
+                {selectedYear === 'all'
+                  ? `contributions across ${availableYears.length} years for`
+                  : `contributions in ${selectedYear} for`}{' '}
                 <span className="font-mono text-[#2997ff]">@{username}</span>
               </p>
             </div>
           </div>
 
-          {/* Streaks Pills */}
-          <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
-            <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-xs font-mono">
-              <Flame className="w-3.5 h-3.5 text-amber-400" />
-              <span className="text-[var(--text-secondary)]">Longest:</span>
-              <span className="font-bold text-[var(--text-primary)]">
-                {stats.longestStreak} days
-              </span>
+          {/* Controls: Year Selector Dropdown + Quick Stack Toggle */}
+          <div className="flex items-center gap-2 flex-wrap self-start sm:self-auto">
+            {/* Year Dropdown with All Years Option */}
+            <div className="relative">
+              <select
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(e.target.value)}
+                className="py-1.5 pl-3 pr-8 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-xs font-semibold text-[var(--text-primary)] focus:outline-hidden focus:border-[#2997ff] cursor-pointer min-h-[36px]"
+                aria-label="Select contribution year"
+              >
+                <option value="all">📚 All Years (Stacked)</option>
+                {availableYears.map((y) => {
+                  const count =
+                    yearlyContributions && yearlyContributions[y]
+                      ? yearlyContributions[y]
+                      : yearGroups[y]?.reduce((acc, d) => acc + d.count, 0) || 0;
+                  return (
+                    <option key={y} value={y}>
+                      {y} ({count.toLocaleString()} commits)
+                    </option>
+                  );
+                })}
+              </select>
             </div>
-            <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-xs font-mono">
-              <Zap className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="text-[var(--text-secondary)]">Current:</span>
-              <span className="font-bold text-emerald-400">
-                {stats.currentStreak} days
-              </span>
+
+            {/* Quick Toggle: Stack All Years vs Single Year */}
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedYear(selectedYear === 'all' ? availableYears[0] || '2026' : 'all');
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer min-h-[36px] active:scale-95 ${
+                selectedYear === 'all'
+                  ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30 font-bold'
+                  : 'bg-[var(--bg-surface)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+              }`}
+              title="Toggle between single year view and all years stacked"
+            >
+              <Layers className="w-3.5 h-3.5" />
+              <span>{selectedYear === 'all' ? 'Single Year' : 'Stack All Years'}</span>
+            </button>
+
+            {/* Streaks Callouts */}
+            <div className="hidden lg:flex items-center gap-2">
+              <div className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-xs font-mono">
+                <Flame className="w-3 h-3 text-amber-400" />
+                <span className="text-[var(--text-secondary)]">Streak:</span>
+                <span className="font-bold text-[var(--text-primary)]">
+                  {activeStats.longestStreak}d
+                </span>
+              </div>
+              <div className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-xs font-mono">
+                <Zap className="w-3 h-3 text-emerald-400" />
+                <span className="text-[var(--text-secondary)]">Active:</span>
+                <span className="font-bold text-emerald-400">
+                  {activeStats.currentStreak}d
+                </span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Heatmap Grid Container - Smooth Inertia Scroll on Mobile */}
-        <div className="mt-4 pt-1 pb-2 overflow-x-auto no-scrollbar -mx-2 px-2 sm:mx-0 sm:px-0">
-          <div className="inline-block min-w-full">
-            {/* Months Header Row */}
-            <div className="flex text-[11px] font-mono text-[var(--text-secondary)] mb-2 pl-7 select-none">
-              <div className="relative h-4 w-full" style={{ minWidth: `${weeks.length * 15}px` }}>
-                {monthLabels.map((m, i) => (
-                  <span
-                    key={`${m.month}-${i}`}
-                    className="absolute font-semibold text-[10px] uppercase tracking-wider"
-                    style={{ left: `${m.colIndex * 15}px` }}
-                  >
-                    {m.month}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Grid with Day of Week Axis */}
-            <div className="flex items-start gap-2">
-              {/* Day Labels (Sun, Tue, Thu) */}
-              <div className="flex flex-col justify-between h-[105px] sm:h-[119px] text-[9px] font-mono text-[var(--text-secondary)] pr-1 select-none py-0.5">
-                <span>Mon</span>
-                <span>Wed</span>
-                <span>Fri</span>
-              </div>
-
-              {/* 52 Columns of 7 Squares */}
-              <div className="flex gap-[3px] sm:gap-[4px] items-center">
-                {weeks.map((week, colIdx) => (
-                  <div key={colIdx} className="flex flex-col gap-[3px] sm:gap-[4px]">
-                    {week.map((day, rowIdx) => {
-                      if (!day) {
-                        return (
-                          <div
-                            key={`empty-${rowIdx}`}
-                            className="w-[11px] h-[11px] sm:w-[13px] sm:h-[13px] rounded-[3px] opacity-0 pointer-events-none"
-                          />
-                        );
-                      }
-
-                      const colorClass = getCellColorClass(day.level);
-
-                      return (
-                        <div
-                          key={day.date}
-                          onMouseEnter={(e) => {
-                            const rect = e.currentTarget.getBoundingClientRect();
-                            setHoveredDay({
-                              ...day,
-                              x: rect.left + rect.width / 2,
-                              y: rect.top,
-                            });
-                          }}
-                          onMouseLeave={() => setHoveredDay(null)}
-                          onClick={() => {
-                            setHoveredDay({
-                              ...day,
-                              x: window.innerWidth / 2,
-                              y: 100,
-                            });
-                          }}
-                          className={`w-[11px] h-[11px] sm:w-[13px] sm:h-[13px] rounded-[3px] border cursor-pointer transition-all duration-150 hover:scale-130 hover:z-20 ${colorClass}`}
-                          data-date={day.date}
-                          data-count={day.count}
-                        />
-                      );
-                    })}
-                  </div>
-                ))}
-              </div>
-            </div>
+        {/* Desktop Quick Year Pills Tray (Like GitHub's Year Navigation) */}
+        {availableYears.length > 1 && (
+          <div className="mt-3 hidden sm:flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 text-xs">
+            <span className="text-[11px] font-mono uppercase text-[var(--text-secondary)] mr-1 flex items-center gap-1">
+              <CalendarIcon className="w-3 h-3 text-[#2997ff]" /> Years:
+            </span>
+            <button
+              onClick={() => setSelectedYear('all')}
+              className={`px-2.5 py-1 rounded-lg font-mono text-[11px] transition-all cursor-pointer ${
+                selectedYear === 'all'
+                  ? 'bg-[#2997ff] text-white font-bold shadow-xs'
+                  : 'bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+              }`}
+            >
+              All Years (Stacked)
+            </button>
+            {availableYears.map((y) => (
+              <button
+                key={y}
+                onClick={() => setSelectedYear(y)}
+                className={`px-2.5 py-1 rounded-lg font-mono text-[11px] transition-all cursor-pointer ${
+                  selectedYear === y
+                    ? 'bg-[#2997ff] text-white font-bold shadow-xs'
+                    : 'bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                }`}
+              >
+                {y}
+              </button>
+            ))}
           </div>
+        )}
+
+        {/* Content Section: Single Year View OR Stacked Multi-Year Timeline */}
+        <div className="mt-4 space-y-6">
+          {selectedYear === 'all' ? (
+            /* STACKED TIMELINE: Each Year Rendered Under Each Other */
+            <div className="space-y-6 divide-y divide-[var(--border-subtle)]">
+              {availableYears.map((y, idx) => {
+                const yearDays = yearGroups[y] || [];
+                const yearTotal =
+                  yearlyContributions && yearlyContributions[y]
+                    ? yearlyContributions[y]
+                    : yearDays.reduce((acc, d) => acc + d.count, 0);
+
+                return (
+                  <div key={y} className={idx > 0 ? 'pt-5' : ''}>
+                    <SingleYearGrid
+                      year={y}
+                      days={yearDays}
+                      yearTotal={yearTotal}
+                      onHoverDay={setHoveredDay}
+                      showYearHeader={true}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            /* SINGLE YEAR VIEW: Selected Year */
+            <SingleYearGrid
+              year={selectedYear}
+              days={yearGroups[selectedYear] || []}
+              yearTotal={activeStats.total}
+              onHoverDay={setHoveredDay}
+              showYearHeader={false}
+            />
+          )}
         </div>
 
         {/* Footer with Legend & Hint */}
-        <div className="mt-3 pt-3 border-t border-[var(--border-subtle)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 text-xs text-[var(--text-secondary)]">
+        <div className="mt-4 pt-3 border-t border-[var(--border-subtle)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 text-xs text-[var(--text-secondary)]">
           <div className="flex items-center gap-1.5 font-mono text-[11px]">
             <Info className="w-3.5 h-3.5 text-[#2997ff]" />
-            <span>Hover or tap any square to inspect daily commit density</span>
+            <span>Hover or tap any square to inspect daily commits • Use arrows or swipe to scroll</span>
           </div>
 
           {/* GitHub Standard Contribution Legend */}

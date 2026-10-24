@@ -340,6 +340,7 @@ export function App() {
                 <CommitCalendar
                   contributions={summary.contributions}
                   totalContributions={summary.totalContributions}
+                  yearlyContributions={summary.yearlyContributions}
                   username={summary.user.login}
                 />
 

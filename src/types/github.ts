@@ -110,6 +110,7 @@ export interface UserSummaryData {
   sourceReposCount: number;
   forkedReposCount: number;
   totalContributions?: number;
+  yearlyContributions?: Record<string, number>;
   contributions?: ContributionDay[];
   cachedAt?: number;
 }
