@@ -66,6 +66,80 @@ async function fetchWithAuth(url: string): Promise<Response> {
   return response;
 }
 
+export async function fetchRateLimitStatus(): Promise<RateLimitInfo> {
+  try {
+    const res = await fetchWithAuth('https://api.github.com/rate_limit');
+    if (res.ok) {
+      const data = await res.json();
+      if (data?.resources?.core) {
+        latestRateLimit = {
+          limit: data.resources.core.limit,
+          remaining: data.resources.core.remaining,
+          reset: data.resources.core.reset,
+        };
+      }
+    }
+  } catch (e) {
+    console.warn('Failed to fetch rate limit:', e);
+  }
+  return latestRateLimit;
+}
+
+export async function validateAndSaveToken(
+  candidateToken: string
+): Promise<{
+  success: boolean;
+  error?: string;
+  rateLimit?: RateLimitInfo;
+  username?: string;
+}> {
+  const clean = candidateToken.trim();
+  if (!clean) {
+    return { success: false, error: 'Please enter a GitHub token.' };
+  }
+
+  try {
+    const res = await fetch('https://api.github.com/user', {
+      headers: {
+        Accept: 'application/vnd.github.v3+json',
+        Authorization: `token ${clean}`,
+      },
+    });
+
+    updateRateLimitFromHeaders(res.headers);
+
+    if (res.status === 401 || res.status === 403) {
+      return {
+        success: false,
+        error:
+          'GitHub rejected this token (HTTP 401/403). Please verify you copied the full token without spaces.',
+      };
+    }
+
+    if (res.ok) {
+      const userData = await res.json();
+      setStoredToken(clean);
+      const rl = await fetchRateLimitStatus();
+      return {
+        success: true,
+        username: userData.login,
+        rateLimit: rl,
+      };
+    }
+
+    return {
+      success: false,
+      error: `GitHub returned status ${res.status}. Please check your token.`,
+    };
+  } catch (err: any) {
+    return {
+      success: false,
+      error: err.message || 'Network error while validating token with GitHub.',
+    };
+  }
+}
+
+
 export function generateFallbackContributions(total = 200): ContributionDay[] {
   const days: ContributionDay[] = [];
   const now = new Date();

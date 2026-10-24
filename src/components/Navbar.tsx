@@ -8,6 +8,7 @@ import {
   Trophy,
   UserCheck,
   ExternalLink,
+  KeyRound,
 } from 'lucide-react';
 import { GithubIcon } from './icons/GithubIcon';
 import type { Theme } from '../hooks/useTheme';
@@ -20,6 +21,8 @@ interface NavbarProps {
   activePage: ActivePage;
   onChangePage: (page: ActivePage) => void;
   onOpenCompareModal: () => void;
+  onOpenTokenModal: () => void;
+  hasToken?: boolean;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -28,6 +31,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   activePage,
   onChangePage,
   onOpenCompareModal,
+  onOpenTokenModal,
+  hasToken = false,
 }) => {
   return (
     <header className="sticky top-2 sm:top-3 z-40 w-full px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto">
@@ -80,6 +85,20 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <Swords className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Versus</span>
+          </button>
+
+          {/* GitHub API Token Button */}
+          <button
+            onClick={onOpenTokenModal}
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-medium bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--border-color)] transition-all active:scale-95 min-h-[36px] cursor-pointer"
+            title={hasToken ? 'GitHub Token Active (5,000 req/hr)' : 'GitHub API Token (Boost to 5,000 req/hr)'}
+            aria-label="GitHub API Token"
+          >
+            <KeyRound className={`w-3.5 h-3.5 ${hasToken ? 'text-emerald-400' : 'text-amber-400'}`} />
+            <span className="hidden md:inline font-mono">Token</span>
+            {hasToken && (
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-xs shadow-emerald-400/80" />
+            )}
           </button>
 
           {/* Mobile One-Tap Theme Toggle */}

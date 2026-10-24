@@ -14,11 +14,12 @@ import { CompareModal } from './components/CompareModal';
 import { ExportCardModal } from './components/ExportCardModal';
 import { MobileTabBar } from './components/MobileTabBar';
 import { Footer } from './components/Footer';
-import { fetchUserSummary, syncLeaderboardEntries } from './services/githubApi';
+import { TokenModal } from './components/TokenModal';
+import { fetchUserSummary, syncLeaderboardEntries, getStoredToken } from './services/githubApi';
 import { BRADLEY_DEMO_DATA } from './services/mockData';
 import { INITIAL_LEADERBOARD_PROFILES } from './services/leaderboardData';
 import type { UserSummaryData } from './types/github';
-import { AlertCircle, Sparkles } from 'lucide-react';
+import { AlertCircle, Sparkles, KeyRound } from 'lucide-react';
 
 const LEADERBOARD_STORAGE_KEY = 'gitpulse_leaderboard_roster_v2';
 
@@ -90,6 +91,8 @@ export function App() {
   const [isCompareModalOpen, setIsCompareModalOpen] = useState(false);
   const [compareOpponent, setCompareOpponent] = useState<string | null>(null);
   const [isExportCardModalOpen, setIsExportCardModalOpen] = useState(false);
+  const [isTokenModalOpen, setIsTokenModalOpen] = useState(false);
+  const [hasGhToken, setHasGhToken] = useState<boolean>(() => !!getStoredToken());
 
   const upsertIntoLeaderboard = useCallback((userData: UserSummaryData) => {
     setLeaderboardProfiles((prev) => {
@@ -236,6 +239,8 @@ export function App() {
           setCompareOpponent(null);
           setIsCompareModalOpen(true);
         }}
+        onOpenTokenModal={() => setIsTokenModalOpen(true)}
+        hasToken={hasGhToken}
       />
 
       <main className="flex-1 pb-28 sm:pb-16">
@@ -289,10 +294,18 @@ export function App() {
                       <p className="text-xs text-red-400/90 mt-0.5">{error}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex items-center gap-2 shrink-0 flex-wrap">
+                    <button
+                      onClick={() => setIsTokenModalOpen(true)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-[#2997ff] hover:bg-[#1a85ea] text-white shadow-md shadow-blue-500/20 transition-all cursor-pointer min-h-[32px]"
+                      title="Add a GitHub Personal Access Token to boost rate limit to 5,000 req/hr"
+                    >
+                      <KeyRound className="w-3.5 h-3.5" />
+                      <span>Add Token (5,000 req/hr)</span>
+                    </button>
                     <button
                       onClick={handleUseDemo}
-                      className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-red-500/20 hover:bg-red-500/30 text-white transition-colors cursor-pointer"
+                      className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-red-500/20 hover:bg-red-500/30 text-white transition-colors cursor-pointer min-h-[32px]"
                     >
                       Load Demo Showcase
                     </button>
@@ -400,6 +413,17 @@ export function App() {
           summary={summary}
         />
       )}
+
+      <TokenModal
+        isOpen={isTokenModalOpen}
+        onClose={() => setIsTokenModalOpen(false)}
+        onTokenUpdated={() => {
+          setHasGhToken(!!getStoredToken());
+          if (username) {
+            loadUserData(username, true);
+          }
+        }}
+      />
     </div>
   );
 }
